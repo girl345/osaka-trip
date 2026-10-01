@@ -58,7 +58,7 @@
   #map[data-z=far] .pin.small.keep span, #map[data-z=mid] .pin.small.keep span { display: block; }
   #map:not(.all) .pin.extra:not(.sel):not(.keep) { display: none; }
   .pin.small { width: 34px; height: 34px; font-size: 17px; }
-  /* 장소 정보 창: 넓은 화면은 지도 오른쪽(왼쪽의 근처 목록을 가리지 않게), 좁은 화면(휴대폰)은 지도 아래쪽(그동안 근처 목록은 접어 둠) */
+  /* 장소 정보 창: 좁은 화면(휴대폰)에서만 씀. 지도 아래쪽에 뜨고 그동안 근처 목록은 접어 둠. 넓은 화면은 핀 위 말풍선(addMarker의 m.open) */
   #info { position: absolute; z-index: 3; right: 10px; top: 96px; width: 250px; max-height: calc(100% - 180px); overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 2px 10px #0005; }
   #info[hidden] { display: none; }
   /* 지금 지도 화면 안에 있는 맛집·장소 사진 목록: 넓은 화면은 지도 왼쪽에 세로로, 좁은 화면은 지도 아래쪽에 가로로 */
@@ -90,7 +90,11 @@
   #info .x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #fffc; font-size: 16px; cursor: pointer; }
   @media (max-width: 899px) { #info { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; max-height: 42%; } #mapwrap.hasinfo #nearby { display: none; } #mapwrap.hasinfo #me { top: 25%; } }
   .card { font-size: 13px; }
-  .card .thumb { height: 90px; margin-bottom: 6px; font-size: 44px; }
+  .maplibregl-popup { z-index: 6; }
+  .maplibregl-popup-content { border-radius: 12px; box-shadow: 0 2px 12px #0006; padding: 10px; }
+  .maplibregl-popup .card { width: 250px; overflow-y: auto; }
+  .maplibregl-popup-close-button { font-size: 20px; width: 28px; height: 28px; background: #fffc; border-radius: 50%; right: 4px; top: 4px; }
+  .card .thumb { height: 84px; margin-bottom: 6px; font-size: 44px; }
   .card b { font-size: 15px; }
   .card a { display: inline-block; margin: 6px 8px 0 0; color: #06c; font-weight: 700; text-decoration: none; }
   .links a { color: #06c; text-decoration: none; }
@@ -921,7 +925,9 @@ function focus(p, zoom) {
   // 고른 핀을 「내 핀」 자리로 가져옴. 넓은 화면은 지도 정중앙, 좁은 화면은 아래쪽 정보 창에 가리지 않게 위에서 1/4 지점(내 핀도 그 자리로 올라감)
   map.easeTo({ center: p.ll, offset: wide ? [0, 0] : [0, -h * 0.25], ...(zoom && { zoom, pitch: 60 }) });
 }
+let pop = null; // 지금 떠 있는 말풍선
 function closeInfo() {
+  if (pop) { const x = pop; pop = null; x.remove(); }
   $('info').hidden = true;
   $('mapwrap').classList.remove('hasinfo');
   markers.forEach(x => x.getElement().classList.remove('sel'));
@@ -931,7 +937,7 @@ function closeInfo() {
 function fitLeg(a, b, card) {
   if (!ready) return;
   const { wide, h } = freeArea();
-  const padding = { top: 100, bottom: card && !wide ? h * 0.5 + 30 : wide ? 80 : 130, left: wide ? 170 : 60, right: card && wide ? 290 : 70 };
+  const padding = { top: 100, bottom: card && !wide ? h * 0.5 + 30 : wide ? 80 : 130, left: wide ? 170 : 60, right: 70 };
   map.fitBounds(new maplibregl.LngLatBounds(a.ll, a.ll).extend(b.ll), { padding, maxZoom: 16, pitch: 50, bearing: -15 });
   $('mapwrap').scrollIntoView({ behavior: 'smooth' });
 }
@@ -967,11 +973,22 @@ function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 �
   }
   const m = ready ? new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(p.ll).addTo(map) : { getElement: () => el, remove() {} };
   m.open = () => {
-    const x = Object.assign(document.createElement('button'), { className: 'x', textContent: '✕', onclick: closeInfo });
-    $('info').replaceChildren(card, x);
-    $('info').hidden = false;
-    $('mapwrap').classList.add('hasinfo');
-    $('info').scrollTop = 0;
+    closeInfo();
+    const { wide, h } = freeArea();
+    if (ready && wide) {
+      // 넓은 화면: 설명을 핀 바로 위 말풍선으로. 핀이 지도 가운데에 오므로 위쪽 절반 안에 들어가게 높이를 제한(넘치면 말풍선 안에서 스크롤)
+      card.style.maxHeight = Math.max(150, h / 2 - (small ? 44 : 58) - 78) + 'px';
+      pop = new maplibregl.Popup({ offset: small ? 40 : 54, anchor: 'bottom', maxWidth: '280px', closeOnClick: false }).setLngLat(p.ll).setDOMContent(card).addTo(map);
+      pop.on('close', () => { if (pop) { pop = null; closeInfo(); } });
+    } else {
+      // 좁은 화면(휴대폰): 말풍선이 들어갈 자리가 없어 지도 아래쪽 창에 표시
+      card.style.maxHeight = '';
+      const x = Object.assign(document.createElement('button'), { className: 'x', textContent: '✕', onclick: closeInfo });
+      $('info').replaceChildren(card, x);
+      $('info').hidden = false;
+      $('mapwrap').classList.add('hasinfo');
+      $('info').scrollTop = 0;
+    }
     markers.forEach(o => o.getElement().classList.toggle('sel', o === m));
   };
   el.onclick = () => { m.open(); focus(p); };
