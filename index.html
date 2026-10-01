@@ -29,6 +29,13 @@
   #panel > [hidden] { display: none !important; }
   .help { background: #fff8e1; border-radius: 12px; padding: 10px 12px; margin: 10px 0 0; font-size: 13.5px; line-height: 1.7; }
   .help > b:first-child { display: block; }
+  .help ul { margin: 4px 0 0; }
+  .help li { margin: 2px 0; font-size: 13px; }
+  #b-eval .sg { margin-top: 8px; }
+  #b-eval .sg button { margin: 4px 6px 0 0; padding: 6px 10px; border: 1px solid #06c; border-radius: 16px; background: #fff; color: #06c; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  #helper h3 { margin: 10px 0 0; color: #222; }
+  #helper .chips { margin: 6px 0 0; }
+  #helper .chips button { padding: 5px 10px; font-size: 12.5px; }
   #settings h3 { font-size: 15.5px; color: #222; margin: 18px 0 2px; }
   #settings .note { margin: 2px 0 0; }
   #settings #save { margin-top: 16px; }
@@ -124,6 +131,19 @@
   .btn.light { background: #e9e9e9; color: #222; }
   .brow { display: flex; gap: 6px; align-items: center; background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 6px 8px; margin-top: 6px; font-size: 14px; }
   .brow span { flex: 1; min-width: 0; }
+  .brow .thumb { flex: 0 0 40px; height: 40px; font-size: 18px; }
+  .brow small { display: block; color: #666; font-size: 12px; }
+  .bleg { margin: 2px 0 2px 26px; font-size: 12px; color: #777; }
+  /* 장소 고르기 카드 */
+  .area { margin-top: 14px; padding: 8px 10px; background: #eef6ff; border-radius: 10px; cursor: pointer; font-size: 13px; line-height: 1.5; }
+  .area b { font-size: 14.5px; }
+  .gc { display: flex; gap: 10px; align-items: stretch; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 8px; margin-top: 6px; }
+  .gc .thumb { flex: 0 0 84px; min-height: 72px; cursor: pointer; }
+  .gc .gt { flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.45; color: #555; }
+  .gc .gt b { display: block; font-size: 14.5px; color: #222; }
+  .gc .gt em { font-style: normal; color: #06c; }
+  .gc button { flex: 0 0 44px; border: 0; border-radius: 10px; background: #222; color: #fff; font-size: 20px; font-weight: 700; cursor: pointer; }
+  .gc button.in { background: #00a37a; }
   .brow button { border: 0; background: #e6e6e6; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; }
   .line { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
   .line input { flex: 1; min-width: 0; padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 8px; }
@@ -210,18 +230,38 @@
     </div>
 
     <!-- 내가 직접 짜기 -->
-    <p class="help" data-page="builder">① 바꾸고 싶은 <b>날짜</b>를 고릅니다. ② 장소를 <b>넣고</b>, ▲▼로 <b>순서</b>를 바꾸고, ✕로 <b>뺍니다</b>. ③ <b>저장하고 점수 받기</b>를 누르면 일정이 바뀌고, 순서가 괜찮은지 점수와 더 좋은 방법을 알려줍니다.<br>지도에서 핀을 눌러 「내 일정에 담기」로 넣을 수도 있어요.</p>
+    <div class="help" data-page="builder"><b>🧑‍💼 여행 도우미가 같이 짜 드려요</b>안 가봤어도 괜찮아요. 여행자들이 보통 짜는 하루는 이렇습니다.
+      <ul>
+        <li><b>아침 (9~12시)</b> 일찍 여는 관광지부터. 성, 신사, 시장, 수족관. 오전이 덜 붐벼요.</li>
+        <li><b>점심 (12시쯤)</b> 아침에 간 곳 근처에서.</li>
+        <li><b>오후 (13~17시)</b> 쇼핑, 캐릭터숍, 카페. 가게는 보통 11시에 열어요.</li>
+        <li><b>해 질 무렵 (16시 30분쯤)</b> 전망대나 관람차. 노을과 야경을 한 번에.</li>
+        <li><b>저녁 (18시쯤)</b> 번화가에서.</li>
+        <li><b>밤</b> 네온 거리, 돈키호테, 온천. 22시 전에는 숙소로.</li>
+        <li>하루에 <b>지역은 1~2곳만</b>. 유니버설·나라·교토는 하루를 통째로 씁니다.</li>
+      </ul>
+    </div>
     <details id="builder" data-page="builder" open><summary>✏️ 내가 직접 일정 짜기</summary>
-      <div class="form">
-        <label>① 날짜 <select id="b-day"></select></label>
-        <label>② 넣을 장소 <select id="b-place"></select></label>
+      <h3>① 어느 날을 짤까요?</h3>
+      <div id="b-days" class="chips"></div><select id="b-day" hidden></select>
+      <div class="help" id="helper">
+        <b>🧑‍💼 도우미에게 맡기기</b>세 가지만 답하면 위의 흐름(아침 → 점심 → 오후 → 노을 → 저녁 → 밤)대로 이날 일정을 짜 드려요. 한 번 더 누르면 다른 조합으로 바꿔 드립니다.
+        <h3>어디서 놀까요? (1~2곳, 안 고르면 숙소 근처)</h3><div id="h-areas" class="chips"></div>
+        <h3>뭐가 좋아요? (여러 개 가능)</h3><div id="h-kinds" class="chips"></div>
+        <h3>얼마나 돌아다닐까요? (식사 빼고)</h3><div id="h-pace" class="chips"></div>
+        <div class="line"><button id="h-go" class="btn">✨ 이렇게 짜 줘</button><button id="h-ai" class="btn light">💬 AI에게 물어볼 글 복사</button></div>
+        <p class="note" id="h-msg"></p>
       </div>
-      <div class="line"><button id="b-add" class="btn light">＋ 이 장소 넣기</button></div>
-      <div class="line"><input id="b-q" placeholder="목록에 없는 곳 이름 쓰기"><button id="b-find" class="btn light">찾아서 넣기</button></div>
-      <p class="note" id="b-msg"></p>
+      <h3>② 내 일정 (위에서부터 가는 순서)</h3>
       <div id="b-list"></div>
-      <div class="line"><button id="b-save" class="btn">✅ 저장하고 점수 받기</button><button id="b-reset" class="btn light">↩ 추천 일정으로 되돌리기</button></div>
+      <div class="line"><button id="b-clear" class="btn light">🗑 비우고 처음부터</button><button id="b-reset" class="btn light">↩ 추천 일정으로 되돌리기</button></div>
       <div id="b-eval"></div>
+      <h3>③ 가고 싶은 곳 고르기</h3>
+      <div id="b-kinds" class="chips"></div>
+      <div id="b-gallery"></div>
+      <h3>목록에 없는 곳 넣기</h3>
+      <div class="line"><input id="b-q" placeholder="장소 이름 쓰기 (영어나 일본어가 잘 찾아져요)"><button id="b-find" class="btn light">찾아서 넣기</button></div>
+      <p class="note" id="b-msg"></p>
     </details>
     <details id="near" data-page="builder" open><summary>🏨 숙소에서 걸어갈 수 있는 곳</summary><div id="nearlist"></div><p class="note">숙소에서 가까운 순서. 이미 일정에 있는 곳은 빼고 보여줍니다. 누르면 지도에서 위치가 나오고, 거기서 「내 일정에 담기」를 누르면 됩니다.</p></details>
 
@@ -414,7 +454,31 @@ const TASTES = {
     { name: '도톤보리 리버크루즈', e: '⛵', ll: [135.5027, 34.6689], cost: '성인 2,000엔 · 고등학생 1,000엔 (학생증)', wiki: 'ja:道頓堀', desc: '네온사인 사이를 20분간 배로 도는 코스. 11시~21시 30분 간격, 해 진 뒤가 예쁩니다. 당일 현장 매표.' },
   ]},
 };
-Object.values(TASTES).forEach(t => t.spots.forEach(s => s.cat = 'rec'));
+TASTES.char.spots.push(
+  { name: '디즈니 스토어 (신사이바시 파르코 5층)', e: '🏰', ll: [135.50097, 34.67387], wiki: 'ja:ディズニーストア', desc: '디즈니 공식 굿즈. 일본 한정 상품이 많아요. 10:00~20:00.' },
+  { name: '산리오 갤러리 신사이바시', e: '🎀', ll: [135.50137, 34.67239], wiki: 'ja:サンリオ', desc: '헬로키티·쿠로미·시나모롤 굿즈. 신사이바시스지 상점가 안. 11:00~20:30쯤.' },
+);
+TASTES.shop.spots.push(
+  { name: '핸즈 신사이바시 (파르코 9~11층)', e: '✂️', ll: [135.50110, 34.67395], wiki: 'ja:東急ハンズ', desc: '문구·잡화·여행용품이 층마다 가득한 생활용품 백화점. 10:00~20:00.' },
+  { name: '우메다 로프트 (한신백화점 6층)', e: '📒', ll: [135.49861, 34.70116], wiki: 'ja:阪神百貨店', desc: '예쁜 문구와 스티커, 다이어리, 캐릭터 잡화. 10:00~20:00.' },
+  { name: '3COINS+plus 난바 CITY', e: '🪙', ll: [135.50111, 34.66492], wiki: 'ja:なんばCITY', desc: '대부분 300엔인 잡화점. 파우치, 액세서리, 양말. 난카이 난바역 지하 2층. 11:00~21:00.' },
+  { name: '선드럭 신사이바시 중앙점 (드럭스토어)', e: '💊', ll: [135.50117, 34.67149], wiki: 'ja:サンドラッグ', desc: '화장품·간식·약을 싸게 사는 드럭스토어. 9:00~23:00쯤. 면세는 여권 지참.' },
+);
+TASTES.local = { label: '🍜 이름난 맛집', spots: [
+  { name: '도톤보리 이마이 본점 (우동)', e: '🍜', meal: true, ll: [135.50271, 34.66865], wiki: 'ja:うどん', closed: [3], off: ['11/24'], cost: '1인 약 1,000~1,500엔', desc: '유부가 올라간 키쓰네 우동의 명가. 11:30~21:30. 수요일 휴무.' },
+  { name: '지유켄 난바 본점 (명물 카레)', e: '🍛', meal: true, ll: [135.50239, 34.66632], wiki: 'ja:道頓堀', closed: [1], cost: '명물 카레 990엔', desc: '밥과 카레를 미리 비벼 날달걀을 올린 100년 넘은 카레. 11:00~20:00. 월요일 휴무.' },
+  { name: '홋쿄쿠세이 신사이바시 본점 (오므라이스)', e: '🍳', meal: true, ll: [135.49878, 34.66973], wiki: 'ja:オムライス', cost: '약 1,100엔~', desc: '오므라이스를 처음 만든 가게로 알려진 곳. 다다미방에서 먹어요. 11:30~21:30.' },
+  { name: '앗치치 혼포 도톤보리점 (타코야키)', e: '🐙', ll: [135.50320, 34.66940], wiki: 'ja:たこ焼き', cost: '약 500엔', desc: '줄 서서 먹는 도톤보리 타코야키. 간식으로 한 접시 나눠 먹기 좋아요.' },
+  { name: '카니도라쿠 도톤보리 본점 (게 요리)', e: '🦀', meal: true, ll: [135.50157, 34.66879], wiki: 'ja:かに道楽', cost: '점심 세트 3,740엔~ (16시까지)', desc: '움직이는 큰 게 간판의 그 가게. 점심 세트가 저녁보다 훨씬 쌉니다. 예약 권장. 11:00~22:00.' },
+]};
+TASTES.game = { label: '🎮 가챠·게임', spots: [
+  { name: '가챠가챠노모리 닛폰바시점', e: '🎰', ll: [135.50572, 34.66221], wiki: 'ja:カプセルトイ', desc: '캡슐 뽑기 기계만 수백 대 있는 전문점. 100엔 동전을 넉넉히. 11:00~21:00.' },
+  { name: '#C-pla 난바점 (가챠)', e: '🎰', ll: [135.50072, 34.66734], wiki: 'ja:カプセルトイ', desc: '난바역 근처 캡슐 뽑기 전문점. 10:00~22:00.' },
+  { name: 'GiGO 오사카 도톤보리 본점 (게임센터)', e: '🕹️', ll: [135.50174, 34.66869], wiki: 'ja:ゲームセンター', desc: '3층짜리 게임센터. 인형뽑기와 스티커사진(프리쿠라) 기계가 많아요. 만 18세 미만은 22시 전에 나와야 합니다.' },
+  { name: '타이토 스테이션 난바점', e: '🕹️', ll: [135.50320, 34.66335], wiki: 'ja:タイトーステーション', desc: '인형뽑기와 리듬 게임. 만 18세 미만은 22시 전에 나와야 합니다. 10:00~24:00.' },
+]};
+// meal = 식사로 치는 가게(일정표에서 식당으로 분류), 나머지는 취향 장소(★)
+Object.values(TASTES).forEach(t => t.spots.forEach(s => s.cat = s.meal ? 'food' : 'rec'));
 const PEOPLE = 3;
 const COLORS = ['#e84393', '#00a37a', '#0984e3', '#6c5ce7', '#e17055'];
 const DEFAULTS = { date: '2026-11-10', nights: 2, arr: '10:30', dep: '19:30', tastes: [], themes: [0], first: 0, last: 0, hotel: 0, custom: {}, places: [] };
@@ -586,6 +650,65 @@ DAY2.push({ label: '♨️ 아리마 온천 당일치기', sub: '아리마 온�
   at('쿠시카츠 다루마', '18:00', '🚶 도보 8분'),
 ]});
 
+DAY2.push(
+  { label: '🏯 히메지성 당일치기', sub: '히메지성 당일치기', ticket: { name: '히메지 왕복 교통 3,400엔 · 히메지성(성인만 유료)', jpy: 4300 }, stops: [
+    at('난바 출발', '08:40', undefined, { desc: '만 18세 미만(고등학생)은 히메지성이 무료입니다. 나이 확인용으로 여권을 꼭 챙기세요.' }),
+    { t: '10:30', name: '히메지성', cat: 'sight', e: '🏯', ll: [134.69402, 34.83933], wiki: 'ja:姫路城', cost: '성인 2,500엔 · 고등학생 무료 (정원 포함 통합권 2,600엔)', move: '🚇 요쓰바시선 난바 → 니시우메다 약 8분 · 240엔, JR 오사카역까지 도보 5분, JR 신쾌속(추가 요금 없음) 오사카 → 히메지 약 62분 · 1,460엔, 역에서 성까지 큰길로 도보 20분', desc: '일본에서 가장 아름답다는 하얀 세계유산 성. 꼭대기 천수각까지 오르면 약 2시간(계단이 가파릅니다). 9:00~17:00, 입장은 16시까지.' },
+    { t: '12:40', name: '고코엔 정원', cat: 'sight', e: '🍁', ll: [134.68961, 34.83797], wiki: 'ja:好古園', cost: '성인은 통합권에 포함 · 고등학생 무료', move: '🚶 도보 5분', desc: '성 바로 옆 일본 정원. 연못과 단풍이 예뻐요. 9:00~17:00.' },
+    { t: '13:30', name: '점심: 히메지 오테마에 · 미유키 거리', cat: 'food', e: '🍱', ll: [134.69232, 34.83115], wiki: 'ja:姫路駅', cost: '1인 약 1,500엔', move: '🚶 도보 12분', desc: '성과 역 사이의 상점가. 식당과 기념품 가게가 이어집니다. 가게는 지나가며 고르면 됩니다.' },
+    at('난바 복귀', '17:15', '🚆 JR 신쾌속 히메지 → 오사카 약 62분 · 1,460엔, 요쓰바시선 니시우메다 → 난바 약 8분 · 240엔', { desc: '' }),
+    ichiran('18:15', '🚶 도보 8분'),
+  ]},
+  { label: '🎋 교토 아라시야마 (대나무숲·원숭이)', sub: '교토 아라시야마', ticket: { name: '아라시야마 왕복 교통 · 원숭이 공원 · 텐류지', jpy: 2600 }, stops: [
+    at('난바 출발', '08:55', undefined, { desc: '11월 중순은 단풍철이라 매우 붐빕니다. 일찍 출발하세요.' }),
+    { t: '10:15', name: '아라시야마 몽키파크', cat: 'sight', e: '🐒', ll: [135.67673, 35.01142], wiki: 'ja:嵐山モンキーパークいわたやま', cost: '800엔 (현금만)', move: '🚇 미도스지선 난바 → 우메다 약 10분 · 240엔, 한큐 교토선 특급 오사카우메다 → 가쓰라 약 37분, 한큐 아라시야마선 환승 → 아라시야마 약 7분 · 410엔', desc: '산길을 20분쯤 오르면 원숭이들과 교토 전망이 나옵니다. 먹이 주기 체험. 9:00~16:00, 비가 많이 오면 쉽니다.' },
+    { t: '11:35', name: '도게츠교', cat: 'sight', e: '🌉', ll: [135.67776, 35.01287], wiki: 'ja:渡月橋', move: '🚶 도보 5분', desc: '강과 단풍 든 산을 배경으로 한 아라시야마의 상징 다리.' },
+    { t: '11:50', name: '점심: 아라시야마 상점가', cat: 'food', e: '🍡', ll: [135.6778, 35.0155], wiki: 'ja:嵐山', cost: '1인 약 1,500~2,000엔', move: '🚶 도보 3분', desc: '다리에서 텐류지까지 이어지는 거리. 두부 요리, 소바, 길거리 간식.' },
+    { t: '13:00', name: '텐류지', cat: 'sight', e: '🛕', ll: [135.67294, 35.01622], wiki: 'ja:天龍寺', cost: '정원 500엔', move: '🚶 도보 5분', desc: '연못 정원이 유명한 세계유산 절. 북문으로 나가면 바로 대나무숲입니다. 8:30~17:00.' },
+    { t: '13:50', name: '아라시야마 대나무숲', cat: 'sight', e: '🎋', ll: [135.67115, 35.01674], wiki: 'Bamboo Forest (Kyoto)', move: '🚶 텐류지 북문에서 바로', desc: '하늘까지 뻗은 대나무 사이 산책로. 무료. 사진 명소.' },
+    { t: '14:40', name: '리락쿠마 사보 · 미피 베이커리', cat: 'sight', e: '🧸', ll: [135.67715, 35.01628], wiki: 'ja:ミッフィー', cost: '파르페 약 1,500엔', move: '🚶 도보 8분', desc: '캐릭터 찻집과 빵집이 상점가에 나란히 있어요. 줄이 길 수 있습니다.' },
+    at('난바 복귀', '17:20', '🚆 한큐 아라시야마 → 가쓰라 환승 → 오사카우메다 약 50분 · 410엔, 미도스지선 우메다 → 난바 약 10분 · 240엔', { desc: '' }),
+    ichiran('18:15', '🚶 도보 8분'),
+  ]},
+  { label: '🍵 우지 말차 · 후시미이나리', sub: '우지 말차 · 뵤도인 · 후시미이나리', ticket: { name: '우지 왕복 교통 · 뵤도인(봉황당 내부 포함)', jpy: 2600 }, stops: [
+    at('난바 출발', '08:45', undefined, { desc: '' }),
+    { t: '10:10', name: '뵤도인 (봉황당)', cat: 'sight', e: '🪙', ll: [135.80745, 34.88950], wiki: 'ja:平等院', cost: '성인 700엔 · 고등학생 400엔 · 봉황당 내부 +300엔', move: '🚇 미도스지선 난바 → 요도야바시 약 8분 · 240엔, 게이한 특급 요도야바시 → 주쇼지마 약 38분, 게이한 우지선 환승 → 우지 약 15분 · 490엔', desc: '10엔 동전에 그려진 건물. 도착하면 내부 관람 시간표부터 받으세요(선착순, 20분마다 50명, 예약 불가). 8:45~17:30.' },
+    { t: '11:50', name: '점심·디저트: 나카무라 토키치 본점', cat: 'food', e: '🍵', ll: [135.80171, 34.88941], wiki: 'ja:抹茶', cost: '1인 약 1,500~2,500엔', move: '🚶 도보 10분', desc: '우지 말차 디저트의 대표 가게. 예약이 안 되고, 도착해서 번호표를 받아 기다립니다(접수 16시까지). 기다리는 동안 앞의 말차 거리 구경.' },
+    { t: '13:30', name: '우지가미 신사', cat: 'sight', e: '⛩️', ll: [135.81146, 34.89205], wiki: 'ja:宇治上神社', move: '🚶 강 건너 도보 12분', desc: '일본에서 가장 오래된 신사 건물. 무료, 조용한 숲길.' },
+    at('후시미이나리', '14:45', '🚆 게이한 우지 → 주쇼지마 환승 → 단바바시 환승 → 후시미이나리 약 32분 · 360엔'),
+    at('난바 복귀', '17:45', '🚆 게이한 후시미이나리 → 단바바시 환승 특급 → 요도야바시 약 50분, 미도스지선 요도야바시 → 난바 약 8분 · 합계 약 720엔', { desc: '' }),
+    at('쿠시카츠 다루마', '18:30', '🚶 도보 8분'),
+  ]},
+  { label: '🗼 신세카이 · 텐노지 + 온천', sub: '동물원 · 츠텐카쿠 · 스파월드 · 하루카스', ticket: { name: '동물원 · 츠텐카쿠 · 스파월드 · 하루카스', jpy: 6150 }, stops: [
+    at('난바 출발', '09:15', undefined, { desc: '수건과 갈아입을 속옷을 챙기면 온천이 편해요(수건은 스파월드에서 줍니다).' }),
+    at('텐노지 동물원', '09:45', '🚇 미도스지선 난바 → 도부쓰엔마에 약 3분 · 190엔, 도보 5분'),
+    { ...FIRSTS[2].stops[2], t: '11:45', move: '🚶 도보 8분' },
+    at('츠텐카쿠', '13:00', '🚶 도보 3분', { desc: P('츠텐카쿠').desc + ' 60m 미끄럼틀 「타워 슬라이더」(1,100엔)도 있어요.' }),
+    at('스파월드', '14:15', '🚶 도보 4분'),
+    at('하루카스 300', '16:30', '🚶 도보 15분', { desc: sunset }),
+    at('아베노 하루카스 식당가', '18:00', '🚶 같은 건물'),
+    at('난바 복귀', '19:30', '🚇 미도스지선 텐노지 → 난바 약 7분 · 240엔', { desc: '' }),
+  ]},
+  { label: '🌊 바닷가 전망대 + 소라니와 온천', sub: '수족관 · 코스모타워 · 소라니와 온천', ticket: { name: '가이유칸 · 코스모타워 · 소라니와 온천', jpy: 6100 }, stops: [
+    at('난바 출발', '09:20', undefined, { desc: '소라니와 온천은 유카타와 수건을 줍니다. 한 달에 한 번 수요일에 쉬어요.' }),
+    at('가이유칸', '10:00', P('가이유칸').move),
+    at('나니와 쿠이신보', '12:15', '🚶 도보 2분 (옆 건물)'),
+    at('텐포잔 대관람차', '13:30', '🚶 도보 2분'),
+    { t: '15:30', name: '사키시마 코스모타워 전망대', cat: 'sight', e: '🌇', ll: [135.41484, 34.63813], wiki: 'ja:大阪府咲洲庁舎', closed: [1], cost: '1,200엔', move: '🚇 주오선 오사카코 → 코스모스퀘어 약 3분, 뉴트램 환승 → 트레이드센터마에 약 2분 · 약 240엔', desc: '252m, 55층에서 보는 바다와 항구. 해 질 무렵이 가장 예쁩니다. 11:00~22:00, 월요일 휴관.' },
+    at('소라니와', '17:30', '🚇 뉴트램 트레이드센터마에 → 코스모스퀘어, 주오선 환승 → 벤텐초 약 15분 · 약 290엔', { desc: P('소라니와').desc + ' 저녁은 온천 안 식당에서 먹을 수 있어요.' }),
+    at('난바 복귀', '20:45', '🚇 주오선 벤텐초 → 혼마치, 미도스지선 환승 → 난바 약 15분 · 약 240엔', { desc: '' }),
+  ]},
+  { label: '🎨 만들기 체험 · 기모노 입기', sub: '기모노 · 타코야키 만들기 · 음식 모형 만들기', ticket: { name: '기모노 대여 · 타코야키 만들기 · 음식 모형 만들기', jpy: 10700 }, stops: [
+    at('난바 출발', '09:45', undefined, { desc: '세 곳 모두 온라인 예약을 해 두면 기다리지 않습니다.' }),
+    { t: '10:30', name: '기모노 렌탈 와고 신사이바시점', manual: true, cat: 'sight', e: '👘', ll: [135.50133, 34.67024], wiki: 'Kimono', cost: '3,300엔~ (온라인 결제 기준)', move: '🚇 미도스지선 난바 → 신사이바시 약 2분 · 190엔', desc: '기모노를 골라 입고 하루 종일 다닙니다. 입혀 주기와 간단한 머리 손질 포함. 온라인 예약, 당일 18시까지 반납. 10:30~18:00.' },
+    { t: '12:00', name: '점심: 코나몬 뮤지엄 타코야키 만들기', cat: 'food', e: '🐙', ll: [135.50218, 34.66880], wiki: 'ja:たこ焼き', cost: '타코야키 만들기 3,850엔 (음료 포함)', move: '🚶 도보 6분', desc: '직접 15개를 구워 먹는 수업. 공식 사이트에서 예약. 같은 곳에 음식 모형 만들기(3,520엔)도 있어요. 평일 10:30~22:30.' },
+    at('호젠지 요코초', '13:30', '🚶 도보 3분', { desc: '기모노 입고 사진 찍기 좋은 등불 골목.' }),
+    { t: '14:30', name: '디자인 포켓 음식 모형 만들기', cat: 'sight', e: '🍣', ll: [135.50340, 34.66460], wiki: 'ja:食品サンプル', cost: '타코야키 모형 3,480엔 · 초밥 3,980엔', move: '🚶 도보 6분', desc: '식당 진열장의 진짜 같은 음식 모형을 직접 만들어 가져갑니다(30~45분). 예약 권장. 10:00~18:00. 주방용품 상점가 도구야스지 안.' },
+    at('신사이바시스지', '16:00', '🚶 도보 12분', { desc: '기모노 입고 쇼핑 거리 산책. 17시 30분까지 가게로 돌아가 반납하세요.' }),
+    at('이마이', '18:00', '🚶 도보 6분'),
+  ]},
+);
+
 // 사용자가 입력한 이름은 화면에 그대로 넣기 전에 태그 문자를 제거
 const clean = t => String(t).replace(/[<>&"'`]/g, '').trim().slice(0, 40);
 
@@ -644,15 +767,21 @@ function buildPlan(v) {
     const base = d.stops.filter(x => x.fix || isHome(x) || x.cat === 'food' || !used.has(x.name));
     const dupes = d.stops.filter(x => !base.includes(x)).map(x => x.name);
     // 취향 장소는 이 날 들르는 곳 중 가장 가까운 곳(800m 이내)의 40분 뒤에 넣음
-    const visits = base.filter(x => !x.fix && x.cat !== 'move'), extra = [];
+    const visits = base.filter(x => !x.fix && x.cat !== 'move'), extra = [], swaps = new Map();
     for (const sp of v.tastes.flatMap(k => TASTES[k].spots)) {
       if (used.has(sp.name) || base.some(x => x.name === sp.name)) continue;
+      if (sp.meal) { // 식사 가게는 끼워 넣지 않고, 가까운(800m 이내) 식사 자리 하나와 바꿈
+        const meal = visits.filter(x => x.cat === 'food' && !swaps.has(x) && meters(x.ll, sp.ll) < 800).sort((a, b) => meters(a.ll, sp.ll) - meters(b.ll, sp.ll))[0];
+        if (meal) swaps.set(meal, { ...sp, t: meal.t, move: meal.move });
+        continue;
+      }
+      if (extra.length >= 5) continue; // 하루에 끼워 넣는 취향 장소는 5곳까지. 나머지는 요약에 따로 알려 줌
       const near = visits.filter(x => meters(x.ll, sp.ll) < 800).sort((a, b) => meters(a.ll, sp.ll) - meters(b.ll, sp.ll))[0];
       if (!near) continue;
       const n = extra.filter(e => e.near === near).length;
       extra.push({ ...sp, near, t: hhmm(mins(near.t) + 40 + n * 20), move: `🚶 ${near.name.replace(/^.*?: /, '')}에서 도보 약 ${walkMin(near.ll, sp.ll)}분` });
     }
-    const all = base.concat(extra)
+    const all = base.map(x => swaps.get(x) || x).concat(extra)
       .map(x => x.fix ? { ...x, t: hhmm(fixed[x.fix]) } : x)
       .map(x => isHome(x) ? { ...x, home: true, ll: home, e: '🏨', wiki: null, name: x.name.replace(/^난바(?=( |에서))/, '숙소') } : x);
     let stops, sub = d.sub, ticket = d.ticket;
@@ -663,8 +792,13 @@ function buildPlan(v) {
       const head = all.slice(0, cut < 0 ? all.length : cut), tail = all.filter(x => anchor(x) && !head.includes(x));
       const start = first ? fixed.city + 30 : 540, sim = simulate(home, mine, start);
       stops = [
-        ...head.map(x => x.fix ? x : { ...x, t: hhmm(start - 30) }),
-        ...sim.stops,
+        ...head.map(x => x.fix ? x : { ...x, t: hhmm(sim.depart - 30) }),
+        ...sim.stops.map(x => { // 식당 이름 앞의 '점심:'·'저녁:'은 실제 도착 시각에 맞춰 다시 붙임
+          if (x.wait >= 20) x = { ...x, move: `${x.move}, 그 전에 약 ${x.wait}분 여유 (앞 장소에서 더 머물거나 근처 구경·카페)` };
+          if (x.cat !== 'food') return x;
+          const t = mins(x.t);
+          return { ...x, name: `${t < 10 * 60 + 30 ? '아침' : t < 15 * 60 ? '점심' : t < 17 * 60 ? '간식' : '저녁'}: ${x.name.replace(/^.*?: /, '')}` };
+        }),
         ...tail.map((x, i) => i ? x : { ...x, t: x.fix ? x.t : hhmm(sim.end), move: moveText(mine.at(-1).ll, x.ll) }),
       ];
       sub = '내가 만든 일정'; ticket = null;
@@ -728,41 +862,72 @@ function nearHotel(hotel, plan) {
 
 // ---- 내 일정 평가
 // 머무는 시간(분). 이름에 아래 낱말이 들어가면 그 값, 아니면 식당 60분·그 외 50분
-const STAY = { '유니버설': 600, '가이유칸': 150, '오사카성': 120, '팀랩': 90, '신사이바시스지': 75, '나라 공원': 60, '도다이지': 60, '가스가타이샤': 60 };
+const STAY = { '유니버설': 600, '가이유칸': 150, '오사카성': 120, '히메지성': 120, '소라니와': 120, '스파월드': 120, '미노오 온천': 120, '팀랩': 90, '뵤도인': 90, '나니와노유': 90, '몽키파크': 75, '신사이바시스지': 75, '나라 공원': 60, '도다이지': 60, '가스가타이샤': 60, '만들기': 60, '금탕': 60, '은탕': 60, '기모노 렌탈': 30 };
 const stayMin = x => Object.entries(STAY).find(([k]) => x.name.includes(k))?.[1] ?? (x.cat === 'food' ? 60 : 50);
 // 이동 시간 추정(분): 1.2km 이하는 도보, 그 이상은 전철(대기·환승 12분 + km당 1.8분). 실제 노선은 반영 안 함
 const travelMin = (a, b) => meters(a, b) < 1200 ? walkMin(a, b) : Math.round(12 + meters(a, b) / 1000 * 1.8);
 const moveText = (a, b) => `${meters(a, b) < 1200 ? '🚶 도보' : '🚇 전철'} 약 ${travelMin(a, b)}분 (추정)`;
 
-// 숙소에서 출발해 순서대로 돌고 숙소로 돌아오는 하루를 계산
+// 장소 종류와 가기 좋은 때. 여행자들이 보통 짜는 흐름: 아침엔 일찍 여는 관광지, 오후엔 쇼핑, 해 질 무렵 전망대, 밤엔 네온·온천
+const SHOPS = new Set([...TASTES.char.spots, ...TASTES.shop.spots].map(x => x.name));
+const kindOf = x => x.e === '♨️' ? 'onsen' : x.cat === 'food' ? 'food' : SHOPS.has(x.name) || /쇼핑|돈키호테|아울렛|아메리카무라|상점가|그랜드 프론트/.test(x.name) ? 'shop' : 'see';
+const AM = /히메지성|고코엔|뵤도인|텐류지|몽키파크|대나무숲|우지가미|오사카성|구로몬|신사|타이샤|시텐노지|도다이지|나라 공원|가이유칸|폭포|기요미즈|이나리|텐만구|동물원|이진칸|금탕|은탕|나카노시마/;
+const SUNSET = /공중정원|전망대|츠텐카쿠|관람차|포트타워/;
+const NIGHT = /글리코|돈키호테|리버크루즈|호젠지|팀랩|라운드원|하버랜드/;
+const slotOf = x => x.cat === 'food' ? 'meal' : SUNSET.test(x.name) ? 'sunset' : NIGHT.test(x.name) || (x.e === '♨️' && !AM.test(x.name)) ? 'night' : AM.test(x.name) ? 'am' : 'pm';
+
+// 숙소에서 출발해 순서대로 돌고 숙소로 돌아오는 하루를 계산.
+// 흐름에 맞게 놓인 장소는 어울리는 시각까지 기다렸다 감: 점심 11:30, 노을 16:15, 저녁 17:30, 밤 18:30, 가게 11:00.
+// 순서가 뒤섞인 장소(예: 밤 장소를 아침 맨 앞에 둠)는 기다리지 않고 바로 감. wait = 그 장소에 가기 전 남는 시간(분)
 function simulate(home, places, start) {
-  let cur = start, pos = home, travel = 0;
-  const stops = places.map(x => {
+  const nFood = places.filter(x => x.cat === 'food').length;
+  let f = 0;
+  const rank = places.map(x => x.cat === 'food' ? (++f === 1 ? 1 : f === nFood ? 4 : 2) : { am: 0, pm: 2, sunset: 3, night: 5 }[slotOf(x)]);
+  const EARLY = { 1: 690, 3: 975, 4: 1050, 5: 1110 };
+  let cur = start, pos = home, travel = 0, depart = start;
+  const stops = places.map((x, i) => {
     const m = travelMin(pos, x.ll), move = moveText(pos, x.ll);
     cur += m; travel += m;
-    const stop = { ...x, t: hhmm(cur), move };
+    const inFlow = rank.slice(i + 1).every(r => r >= rank[i]);
+    let wait = Math.max(0, Math.max(inFlow ? EARLY[rank[i]] || 0 : 0, kindOf(x) === 'shop' ? 660 : 0) - cur);
+    cur += wait;
+    if (i === 0) { depart = start + wait; wait = 0; } // 첫 장소가 늦게 열면 기다리는 대신 그만큼 늦게 출발
+    const stop = { ...x, t: hhmm(cur), move, wait };
     cur += stayMin(x); pos = x.ll;
     return stop;
   });
   const back = places.length ? travelMin(pos, home) : 0;
-  return { stops, travel: travel + back, end: cur + back };
+  return { stops, travel: travel + back, end: cur + back, depart };
 }
 
-// 이동 시간이 가장 짧은 방문 순서. 식사 시간대는 고려하지 않음
-function bestOrder(home, places) {
-  if (places.length > 8) { // ponytail: 9곳 이상은 가까운 곳부터 고르는 근사. 더 정확해야 하면 2-opt 추가
-    const left = [...places], out = [];
-    let pos = home;
+// from에서 출발해 seg를 모두 들르고 to로 가는, 이동이 가장 짧은 순서
+function orderSeg(from, seg, to) {
+  if (seg.length < 2) return seg;
+  const cost = a => a.reduce((sum, x, i) => sum + travelMin(i ? a[i - 1].ll : from, x.ll), 0) + travelMin(a.at(-1).ll, to);
+  if (seg.length > 7) { // ponytail: 8곳 이상은 가까운 곳부터 고르는 근사. 더 정확해야 하면 2-opt 추가
+    const left = [...seg], out = [];
+    let pos = from;
     while (left.length) { left.sort((a, b) => meters(pos, a.ll) - meters(pos, b.ll)); out.push(left.shift()); pos = out.at(-1).ll; }
     return out;
   }
-  let best = places, cost = simulate(home, places, 0).travel;
+  let best = seg, c0 = cost(seg);
   const perm = (a, k) => {
-    if (k === a.length) { const c = simulate(home, a, 0).travel; if (c < cost) { cost = c; best = [...a]; } return; }
+    if (k === a.length) { const c = cost(a); if (c < c0) { c0 = c; best = [...a]; } return; }
     for (let i = k; i < a.length; i++) { [a[k], a[i]] = [a[i], a[k]]; perm(a, k + 1); [a[k], a[i]] = [a[i], a[k]]; }
   };
-  perm([...places], 0);
+  perm([...seg], 0);
   return best;
+}
+// 더 좋은 방문 순서. 식사 위치(점심·저녁)는 그대로 두고, 식사와 식사 사이의 장소들만 이동이 짧게 다시 놓음
+function bestOrder(home, places) {
+  const out = [];
+  let seg = [], from = home;
+  const flush = to => { const o = orderSeg(from, seg, to); out.push(...o); if (o.length) from = o.at(-1).ll; seg = []; };
+  for (const x of places) {
+    if (x.cat === 'food') { flush(x.ll); out.push(x); from = x.ll; } else seg.push(x);
+  }
+  flush(home);
+  return out;
 }
 
 // 내 일정을 점수(100점 만점)와 이유, 대안 순서로 평가
@@ -804,6 +969,16 @@ function evaluate(v, di, places) {
     const a = AVOID.find(a => a.e === '⛔' && meters(a.ll, x.ll) < 600);
     if (a) bad(15, `${q(x.name)}는 주의 구역 ${q(a.name)} 근처예요. 꼭 가야 한다면 낮에만, 큰길로 다니세요.`);
   });
+  // 가는 시간대가 어울리는지
+  mine.stops.forEach(x => {
+    const t = mins(x.t), slot = slotOf(x);
+    if (slot === 'sunset' && t < 15 * 60 + 30) bad(5, `${q(x.name)}는 해 질 무렵(16시 30분쯤)에 가야 노을과 야경을 같이 봅니다. 지금은 ${x.t} 도착이에요. 뒤쪽으로 옮겨 보세요.`);
+    if (slot === 'night' && t < 16 * 60 && x.e !== '♨️') bad(5, `${q(x.name)}는 저녁 이후에 가야 제맛이에요(네온·야경). 지금은 ${x.t} 도착이에요.`);
+    if (kindOf(x) === 'shop' && t < 10 * 60 + 45) bad(5, `${q(x.name)}: 가게는 보통 11시에 엽니다. ${x.t}에는 닫혀 있을 수 있어요. 아침에는 성·신사·시장처럼 일찍 여는 곳을 먼저 가세요.`);
+  });
+  mine.stops.filter(x => x.wait >= 90).forEach(x => bad(5, `${q(x.name)} 가기 전에 약 ${x.wait}분이 비어요. 그 사이에 갈 곳을 하나 더 넣어 보세요(아래 도우미 추천 참고).`));
+  const mealAt = mine.stops.filter(x => x.cat === 'food').map(x => mins(x.t));
+  if (mealAt.length && start < 12 * 60 && mine.end > 14 * 60 && !mealAt.some(t => t >= 11 * 60 && t <= 14 * 60)) bad(5, '점심 시간(11~14시)에 식사가 없어요. 식당을 그 시간대 자리로 옮겨 보세요.');
   if (!last && !full && mine.end < 15 * 60) {
     const near = catalog(v).filter(x => !places.some(y => y.name === x.name)).sort((a, b) => meters(places.at(-1).ll, a.ll) - meters(places.at(-1).ll, b.ll))[0];
     bad(5, `일정이 ${hhmm(mine.end)}쯤 끝나서 시간이 많이 남아요. 마지막 장소에서 가까운 ${q(near.name)}(${moveText(places.at(-1).ll, near.ll)})를 추가해 보세요.`);
@@ -883,6 +1058,7 @@ const LINES = {
   '미도스지선': ['#e5171f', { '센리추오': 'M08', '우메다': 'M16', '요도야바시': 'M17', '혼마치': 'M18', '신사이바시': 'M19', '난바': 'M20', '다이코쿠초': 'M21', '도부쓰엔마에': 'M22', '텐노지': 'M23', '나가이': 'M26' }],
   '주오선': ['#019a66', { '오사카코': 'C11', '혼마치': 'C16', '다니마치4초메': 'C18' }],
   '다니마치선': ['#522886', { '히가시우메다': 'T20', '미나미모리마치': 'T21', '다니마치4초메': 'T23' }],
+  '요쓰바시선': ['#0078ba', { '니시우메다': 'Y11', '난바': 'Y15', '다이코쿠초': 'Y16' }],
   '사카이스지선': ['#814721', { '텐진바시스지6초메': 'K11', '기타하마': 'K14', '닛폰바시': 'K17', '에비스초': 'K18' }],
   '난카이': ['#0065af'], 'JR': ['#f97600'], '한신': ['#d98c00'], '긴테쓰': ['#c2185b'], '한큐': ['#7b1f2e'], '게이한': ['#1d2088'], '모노레일': ['#0a4da2'], '한카이': ['#2e7d32'],
 };
@@ -895,8 +1071,8 @@ function moveHTML(move, from, to, fromHome, toHome) {
     const hop = `미도스지선 ${metro} → 난바 약 2분 · 약 190엔`, back = `미도스지선 난바 → ${metro} 약 2분 · 약 190엔`;
     if (move.startsWith('🚶')) {
       if (walkMin(from, to) > 12) move = fromHome ? `🚇 ${hop}, 이후 도보 약 ${walkMin(NAMBA, to)}분` : `🚶 난바역까지 도보 약 ${walkMin(from, NAMBA)}분, ${back}`;
-    } else if (move.includes('미도스지선')) {
-      move = fromHome ? move.replace(/(미도스지선(?:\([^)]*\))?) 난바 →/, `$1 ${metro} →`) : move.replace(/→ 난바(?=,|$)/, `→ ${metro}`);
+    } else if (/미도스지선|요쓰바시선/.test(move)) { // 다이코쿠초역에는 두 노선이 모두 섬
+      move = fromHome ? move.replace(/((?:미도스지선|요쓰바시선)(?:\([^)]*\))?) 난바 →/, `$1 ${metro} →`) : move.replace(/→ 난바(?=,|$| 약)/, `→ ${metro}`);
     } else move = fromHome ? move.replace(/^\S+ /, `🚇 ${hop}, `) : `${move}, ${back}`;
   }
   const steps = move.split(', ').map(step => {
@@ -964,10 +1140,10 @@ function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 �
     b.textContent = '＋ 내 일정에 담기';
     b.onclick = () => {
       // 목록에 없던 곳(지도에서 직접 누른 가게 등)은 내 장소로 저장해 둠
-      if (!catalog(S).some(c => c.name === p.name)) { S = normalize({ ...S, places: [...S.places, { name: p.name, ll: p.ll }] }); persist(); fillPlaces(); }
-      if (!draft.includes(p.name) && draft.length < 12) draft.push(p.name);
-      renderDraft();
-      b.textContent = `✓ ${builderDay() + 1}일차에 담았어요 → 「내가 직접 짜기」에서 저장`;
+      if (!catalog(S).some(c => c.name === p.name)) { S = normalize({ ...S, places: [...S.places, { name: p.name, ll: p.ll }] }); persist(); }
+      const day = builderDay();
+      addToDraft(p.name);
+      b.textContent = `✓ ${day + 1}일차 일정에 넣었어요`;
     };
     card.append(document.createElement('br'), b);
   }
@@ -1258,31 +1434,198 @@ function save() {
 $('settings').onchange = save;
 $('save').onclick = () => { save(); go('plan'); };
 
-// ---- 내 일정 만들기 화면. draft = 편집 중인 장소 이름 목록
+// ---- 내 일정 만들기 화면. draft = 편집 중인 장소 이름 목록. 바꿀 때마다 바로 저장·계산함
 let draft = [];
 function persist() { try { localStorage.setItem('osaka-trip', JSON.stringify(S)); } catch {} }
 const builderDay = () => Math.min(+$('b-day').value || 0, PLAN.length - 1);
-function fillPlaces() {
-  $('b-place').innerHTML = '';
-  catalog(S).forEach(c => $('b-place').add(new Option(`${c.e} ${c.name}`, c.name)));
+
+// 지역 안내. 안 가본 사람이 "어디가 어디인지" 알 수 있게 지역마다 한 줄 설명을 붙임. 장소는 가장 가까운 지역 중심에 속함
+const AREAS = [
+  ['난바 · 도톤보리', [135.5020, 34.6680], '먹거리와 네온사인의 번화가. 글리코 간판이 있는 곳.'],
+  ['신사이바시 · 호리에', [135.4995, 34.6735], '난바 바로 북쪽(걸어서 10분). 긴 쇼핑 거리와 캐릭터숍, 카페.'],
+  ['우메다', [135.4975, 34.7035], '오사카에서 가장 큰 역 주변. 백화점, 쇼핑몰, 전망대.'],
+  ['텐노지 · 신세카이', [135.5100, 34.6500], '옛날 분위기 거리와 츠텐카쿠 탑, 아주 높은 빌딩 전망대.'],
+  ['오사카성 · 텐진바시', [135.5200, 34.6950], '오사카성과 공원, 일본에서 가장 긴 상점가.'],
+  ['베이 에어리어 (바닷가)', [135.4380, 34.6610], '수족관, 대관람차, 유니버설 스튜디오, 온천 테마파크.'],
+  ['오사카 남쪽', [135.5050, 34.6120], '빨간 다리의 스미요시 신사, 밤에 여는 빛의 식물원.'],
+  ['오사카 북쪽 (미노오 · 엑스포)', [135.4800, 34.8300], '단풍 폭포, 태양의 탑, 컵라면 박물관. 반나절 이상 걸려요.'],
+  ['간사이공항 근처', [135.2950, 34.4100], '아울렛. 마지막 날 공항 가는 길에 들르기 좋아요.'],
+  ['나라', [135.8350, 34.6840], '사슴 공원과 큰 불상. 하루를 통째로 쓰는 곳.'],
+  ['교토', [135.7750, 34.9950], '옛 수도. 신사와 절, 전통 골목. 하루를 통째로 쓰는 곳.'],
+  ['고베', [135.1880, 34.6880], '항구 도시. 차이나타운과 바닷가 야경. 하루를 통째로 쓰는 곳.'],
+  ['아리마 온천', [135.2480, 34.7970], '산속 온천 마을. 하루를 통째로 쓰는 곳.'],
+  ['히메지', [134.6920, 34.8350], '하얀 세계유산 성. 하루를 통째로 쓰는 곳.'],
+];
+const areaOf = ll => AREAS.reduce((best, a) => meters(ll, a[1]) < meters(ll, best[1]) ? a : best);
+const KINDS = { all: '전체', food: '🍴 맛집', see: '📸 볼거리', shop: '🛍️ 쇼핑·캐릭터', onsen: '♨️ 온천' };
+let kind = 'all';
+
+function showOnMap(x) {
+  let m = markers.find(o => o.place === x.name);
+  if (!m) { m = addMarker(x, '', true); m.getElement().classList.add('keep'); }
+  m.open();
+  focus(x, Math.max(ready ? map.getZoom() : 0, 15));
+  if (!freeArea().wide) $('mapwrap').scrollIntoView({ behavior: 'smooth' });
 }
+
+// ③ 장소 카드. 지역별로 묶고, 지역은 숙소에서 가까운 순으로
+function renderGallery() {
+  const home = HOTELS[S.hotel].ll, box = $('b-gallery');
+  box.innerHTML = '';
+  const items = catalog(S).filter(x => kind === 'all' || kindOf(x) === kind)
+    .filter((x, i, a) => a.findIndex(y => y.name.replace(/^.*?: /, '') === x.name.replace(/^.*?: /, '')) === i);
+  [...AREAS].sort((a, b) => meters(home, a[1]) - meters(home, b[1])).forEach(area => {
+    const list = items.filter(x => areaOf(x.ll) === area).sort((a, b) => meters(home, a.ll) - meters(home, b.ll));
+    if (!list.length) return;
+    const head = Object.assign(document.createElement('div'), { className: 'area', innerHTML: `<b>📍 ${area[0]}</b> · 숙소에서 ${moveText(home, area[1]).replace(' (추정)', '')}<br>${area[2]}` });
+    head.onclick = () => { // 지역 이름을 누르면 지도가 그 지역으로
+      if (!ready) return;
+      const b = new maplibregl.LngLatBounds(area[1], area[1]);
+      list.forEach(x => b.extend(x.ll));
+      map.fitBounds(b, { padding: { top: 90, bottom: 60, left: freeArea().wide ? 170 : 40, right: 50 }, maxZoom: 15.5 });
+      if (!freeArea().wide) $('mapwrap').scrollIntoView({ behavior: 'smooth' });
+    };
+    box.append(head);
+    list.forEach(x => {
+      const card = Object.assign(document.createElement('div'), { className: 'gc' }), pic = thumb(x, 'thumb'), has = draft.includes(x.name);
+      pic.title = '지도에서 위치 보기';
+      pic.onclick = () => showOnMap(x);
+      const txt = Object.assign(document.createElement('div'), { className: 'gt', innerHTML:
+        `<b>${x.name.replace(/^.*?: /, '')}</b>${x.desc ? x.desc.split('. ')[0].replace(/\.$/, '') + '.' : ''}<br><em>머무는 시간 약 ${stayMin(x)}분${x.cost ? ' · ' + x.cost : ''}</em>` });
+      const add = Object.assign(document.createElement('button'), { textContent: has ? '✓' : '＋', className: has ? 'in' : '', title: has ? '일정에서 빼기' : '일정에 넣기' });
+      add.onclick = () => has ? (draft.splice(draft.indexOf(x.name), 1), commit()) : addToDraft(x.name);
+      card.append(pic, txt, add);
+      box.append(card);
+    });
+  });
+  [...$('b-kinds').children].forEach(b => b.setAttribute('aria-pressed', b.dataset.k === kind));
+}
+Object.entries(KINDS).forEach(([k, label]) => {
+  const b = Object.assign(document.createElement('button'), { textContent: label });
+  b.dataset.k = k;
+  b.onclick = () => { kind = k; renderGallery(); };
+  $('b-kinds').append(b);
+});
+
+// ---- 도우미: 지역·종류·개수만 고르면 그날 일정을 대신 짜 줌. 규칙 기반(AI 아님)
+const helper = { areas: new Set(), kinds: new Set(['see']), pace: 5, turn: 0 };
+const chipSet = (box, items, isOn, toggle) => items.forEach(([key, label]) => {
+  const b = Object.assign(document.createElement('button'), { textContent: label });
+  const paint = () => [...box.children].forEach(c => c.setAttribute('aria-pressed', isOn(c.dataset.k)));
+  b.dataset.k = key;
+  b.onclick = () => { toggle(key); paint(); };
+  box.append(b);
+  paint();
+});
+chipSet($('h-areas'), AREAS.map(a => [a[0], a[0]]), k => helper.areas.has(k), k => {
+  helper.areas.has(k) ? helper.areas.delete(k) : helper.areas.add(k);
+  if (helper.areas.size > 2) helper.areas.delete([...helper.areas][0]); // 2곳까지만
+});
+chipSet($('h-kinds'), [['see', '📸 구경'], ['shop', '🛍️ 쇼핑·캐릭터'], ['food', '🍴 먹는 게 제일'], ['onsen', '♨️ 온천']], k => helper.kinds.has(k), k => helper.kinds.has(k) ? helper.kinds.delete(k) : helper.kinds.add(k));
+chipSet($('h-pace'), [['3', '여유롭게 (3곳)'], ['5', '보통 (5곳)'], ['7', '꽉 차게 (7곳)']], k => helper.pace === +k, k => helper.pace = +k);
+
+function autoPlan() {
+  const di = builderDay(), day = PLAN[di], home = HOTELS[S.hotel].ll, last = di === PLAN.length - 1;
+  const areas = helper.areas.size ? [...helper.areas] : [...AREAS].sort((a, b) => meters(home, a[1]) - meters(home, b[1])).slice(0, 2).map(a => a[0]);
+  const elsewhere = new Set(PLAN.filter((d, i) => i !== di).flatMap(d => d.stops.map(x => x.name.replace(/^.*?: /, ''))));
+  const rotate = (a, n) => a.length ? a.slice(n % a.length).concat(a.slice(0, n % a.length)) : a;
+  // 후보: 고른 지역 안. 하루 종일 걸리는 곳, 이날 쉬는 곳, 다른 날에 이미 가는 곳, 따로 예약·반납이 필요한 곳(manual)은 제외
+  const pool = catalog(S).filter(x => !x.manual && areas.includes(areaOf(x.ll)[0]) && stayMin(x) < 480 && !elsewhere.has(x.name.replace(/^.*?: /, ''))
+      && !x.closed?.includes(day.dow) && !x.off?.includes(day.date.split('(')[0]))
+    .filter((x, i, a) => a.findIndex(y => y.name.replace(/^.*?: /, '') === x.name.replace(/^.*?: /, '')) === i);
+  const liked = x => helper.kinds.has(kindOf(x)) ? 0 : 1;
+  // 시간대별 후보. 좋아하는 종류를 앞에 두고, turn만큼 건너뛰어 누를 때마다 다른 조합
+  const by = slot => { const l = pool.filter(x => slotOf(x) === slot); const fav = rotate(l.filter(x => !liked(x)), helper.turn), rest = rotate(l.filter(liked), helper.turn); return fav.concat(rest); };
+  const start = di === 0 ? mins(S.arr) + 150 : 540, n = helper.pace;
+  const sunset = last ? null : by('sunset')[0], night = !last && n >= 5 ? by('night')[0] : null;
+  let rest = n - (sunset ? 1 : 0) - (night ? 1 : 0);
+  const amPool = start < 11 * 60 ? by('am') : [], am = amPool.slice(0, Math.ceil(rest / 2));
+  let pm = by('pm').slice(0, rest - am.length);
+  if (am.length + pm.length < rest) pm = pm.concat(amPool.slice(am.length, am.length + rest - am.length - pm.length)); // 오후 후보가 모자라면 아침 후보로 채움
+  const spots = [...am, ...pm, sunset, night].filter(Boolean);
+  // 식사: 고른 곳들에서 가까운 식당. 점심은 아침 일정 뒤, 저녁은 노을 뒤
+  const near = (x, ref) => Math.min(...(ref.length ? ref : [{ ll: home }]).map(y => meters(x.ll, y.ll)));
+  const foods = pool.filter(x => x.cat === 'food');
+  const pick = (ref, not) => rotate(foods.filter(x => !not.includes(x)).sort((a, b) => near(a, ref) - near(b, ref)).slice(0, 3), helper.turn)[0];
+  const lunch = start < 14 * 60 ? pick(am.length ? am : pm, []) : null;
+  const dinner = last ? null : pick([sunset, ...pm.slice(-1)].filter(Boolean), [lunch]);
+  const snack = helper.kinds.has('food') ? pick(pm, [lunch, dinner]) : null;
+  let amO = orderSeg(home, am, lunch?.ll || home), pmO = orderSeg(lunch?.ll || home, pm, (sunset || dinner || { ll: home }).ll);
+  if (!amO.length && pmO.length > 1 && start < 11 * 60 + 30) amO = [pmO.shift()]; // 아침에 갈 곳이 없으면 오후 장소 하나를 점심 앞으로
+  const plan = [...amO, lunch, ...pmO, snack, sunset, dinner, night].filter(Boolean);
+  helper.turn++;
+  if (!spots.length) { $('h-msg').textContent = `「${areas.join(', ')}」에는 조건에 맞는 곳이 없어요. 지역이나 종류를 바꿔 보세요.`; return; }
+  saveDraft(plan.map(x => x.name).slice(0, 12));
+  const nm = a => a.map(x => x.name.replace(/^.*?: /, '')).join(', ');
+  $('h-msg').innerHTML = `<b>도우미가 이렇게 짰어요</b>` + [
+    amO.length && `점심 전: ${nm(amO)}${am.length ? ' — 일찍 여는 곳부터' : ''}`,
+    lunch && `점심: ${nm([lunch])}`,
+    pmO.length && `오후: ${nm(pmO)}`,
+    snack && `간식: ${nm([snack])}`,
+    sunset && `해 질 무렵: ${nm([sunset])} — 노을과 야경`,
+    dinner && `저녁: ${nm([dinner])}`,
+    night && `밤: ${nm([night])}`,
+  ].filter(Boolean).join('<br>') + (spots.length < n ? `<br>이 지역에는 조건에 맞는 곳이 ${spots.length}곳뿐이에요. 지역을 하나 더 고르면 늘어납니다.` : '') + '<br>한 번 더 누르면 다른 조합이 나와요. 아래에서 직접 넣고 빼도 됩니다.';
+}
+// 도우미 추천을 받아 넣을 때: 시간대에 맞는 자리에 끼워 넣음(아침 것은 앞, 노을·밤 것은 뒤)
+function slotInsert(name) {
+  if (draft.includes(name) || draft.length >= 12) return;
+  const cat = catalog(S), x = cat.find(c => c.name === name), slots = draft.map(n => slotOf(cat.find(c => c.name === n) || { name: n }));
+  const rank = { am: 0, pm: 2, sunset: 3, night: 5 }, firstMeal = slots.indexOf('meal'), lastMeal = slots.lastIndexOf('meal');
+  let at = draft.length;
+  if (slotOf(x) === 'meal') at = firstMeal < 0 ? Math.max(0, slots.findIndex(sl => sl !== 'am')) : slots.findIndex(sl => sl === 'night') < 0 ? draft.length : slots.findIndex(sl => sl === 'night');
+  else if (slotOf(x) === 'am') at = Math.max(0, slots.findIndex(sl => sl !== 'am'));
+  else if (slotOf(x) === 'pm') at = firstMeal >= 0 ? firstMeal + 1 : draft.length;
+  else if (slotOf(x) === 'sunset') at = lastMeal > firstMeal ? lastMeal : draft.length;
+  if (at < 0) at = draft.length;
+  draft.splice(at, 0, name);
+  commit();
+}
+$('h-go').onclick = autoPlan;
+// 진짜 AI에게 물어보고 싶을 때: 지금 일정을 글로 정리해 복사. Claude 같은 AI 대화창에 붙여넣어 묻는 용도
+$('h-ai').onclick = () => {
+  const di = builderDay(), d = PLAN[di];
+  const text = `오사카 여행 일정을 봐 줘.\n- 여행: ${$('h1').textContent}, 일행 3명(성인 1명, 고등학생 2명), 숙소는 ${hotelName(HOTELS[S.hotel])}\n- ${d.title} ${d.date} 일정: ${d.stops.map(x => `${x.t} ${x.name}`).join(' → ')}\n\n이 순서가 괜찮은지, 빼거나 바꾸면 좋은 곳, 근처에서 추가하면 좋은 곳을 이유와 함께 알려 줘.`;
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
+    () => $('h-msg').textContent = '복사했어요. Claude 같은 AI 대화창에 붙여넣고 물어보세요.',
+    () => $('h-msg').textContent = text);
+};
+
+// ② 내 일정 목록. 도착 시각, 머무는 시간, 사이 이동 시간을 같이 보여 줌
 function renderDraft() {
-  const box = $('b-list');
-  box.innerHTML = draft.length ? '<p class="note">③ 순서 바꾸기(▲▼) · 빼기(✕)</p>' : '<p class="note">위에서 장소를 골라 넣으세요.</p>';
-  draft.forEach((n, i) => {
-    const row = document.createElement('div');
-    row.className = 'brow';
-    row.innerHTML = `<span>${i + 1}. ${n}</span>`;
+  const box = $('b-list'), cat = catalog(S), di = builderDay();
+  const places = draft.map(n => cat.find(c => c.name === n)).filter(Boolean);
+  const home = HOTELS[S.hotel].ll, sim = simulate(home, places, di === 0 ? mins(S.arr) + 150 : 540);
+  box.innerHTML = places.length ? '' : '<p class="note">아직 비어 있어요. 아래 ③에서 ＋를 눌러 장소를 넣으세요.</p>';
+  sim.stops.forEach((x, i) => {
+    box.insertAdjacentHTML('beforeend', `<div class="bleg">↓ ${x.move.replace(' (추정)', '')}</div>`);
+    const row = Object.assign(document.createElement('div'), { className: 'brow' }), pic = thumb(x, 'thumb');
+    pic.onclick = () => showOnMap(x);
+    const txt = Object.assign(document.createElement('span'), { innerHTML: `<b>${i + 1}. ${x.name.replace(/^.*?: /, '')}</b><small>${x.t} 도착 · 약 ${stayMin(x)}분 머묾 · ${areaOf(x.ll)[0]}${x.wait >= 20 ? ` · 그 전에 ${x.wait}분 여유` : ''}</small>` });
+    row.append(pic, txt);
     [['▲', () => i && ([draft[i - 1], draft[i]] = [draft[i], draft[i - 1]])],
      ['▼', () => i < draft.length - 1 && ([draft[i + 1], draft[i]] = [draft[i], draft[i + 1]])],
      ['✕', () => draft.splice(i, 1)]].forEach(([t, f]) => {
-      const b = document.createElement('button');
-      b.textContent = t;
-      b.onclick = () => { f(); renderDraft(); };
+      const b = Object.assign(document.createElement('button'), { textContent: t });
+      b.onclick = () => { f(); commit(); };
       row.append(b);
     });
     box.append(row);
   });
+  if (places.length) box.insertAdjacentHTML('beforeend', `<div class="bleg">↓ 숙소로 · ${hhmm(sim.end)}쯤 도착 (${di === PLAN.length - 1 ? '마지막 날은 공항 가는 시간에 맞춰야 해요' : '하루 끝'})</div>`);
+  renderGallery();
+}
+// 바꾼 내용을 바로 저장하고 지도·점수를 다시 계산. 목록이 비면 저장하지 않고 안내만
+function commit() {
+  if (draft.length) return saveDraft(draft);
+  renderDraft();
+  $('b-eval').innerHTML = '';
+}
+function addToDraft(name) {
+  if (draft.includes(name)) return;
+  if (draft.length >= 12) { $('b-eval').innerHTML = '하루에 12곳까지만 넣을 수 있어요. 먼저 다른 곳을 빼 주세요.'; return; }
+  draft.push(name);
+  commit();
 }
 // 그날 내 일정이 있으면 그것, 없으면 추천 일정에서 시작
 function loadDraft() {
@@ -1294,9 +1637,15 @@ function loadDraft() {
 function refreshBuilder() {
   const keep = builderDay();
   $('b-day').innerHTML = '';
-  PLAN.forEach((d, i) => $('b-day').add(new Option(`${d.title} ${d.date}${d.custom ? ' (내 일정)' : ''}`, i)));
+  PLAN.forEach((d, i) => $('b-day').add(new Option(`${d.title} ${d.date}${d.custom ? ' (내가 짠 일정)' : ' (추천 일정)'}`, i)));
   $('b-day').value = keep;
-  fillPlaces();
+  $('b-days').innerHTML = '';
+  PLAN.forEach((d, i) => {
+    const b = Object.assign(document.createElement('button'), { textContent: `${d.title} 짜기${d.custom ? ' ✓' : ''}` });
+    b.setAttribute('aria-pressed', i === keep);
+    b.onclick = () => { $('b-day').value = i; refreshBuilder(); show(i); };
+    $('b-days').append(b);
+  });
   loadDraft();
 }
 function renderEval(di) {
@@ -1306,7 +1655,32 @@ function renderEval(di) {
   $('b-eval').innerHTML = `<b>${r.verdict} (${r.score}점)</b>이동 약 ${r.travel}분 · ${hhmm(r.end)}쯤 마무리 예상` +
     (r.issues.length ? li(r.issues) : '<br>동선, 시간, 식사 모두 무리 없습니다.') +
     (r.alt ? `<b style="margin-top:8px">차라리 이 순서로 가세요</b>${r.alt.map(x => `${x.t} ${x.name}`).join(' → ')}<div class="line"><button id="b-alt" class="btn">이 순서로 바꾸기</button></div>` : '');
-  if (r.alt) $('b-alt').onclick = () => { draft = r.alt.map(x => x.name); $('b-save').click(); };
+  if (r.alt) $('b-alt').onclick = () => saveDraft(r.alt.map(x => x.name));
+  // 비어 있는 시간대를 찾아 근처에서 넣을 만한 곳을 2개씩 권함
+  const have = new Set(places.map(slotOf)), meals = places.filter(x => x.cat === 'food').length, lastDay = di === PLAN.length - 1;
+  const ref = places.at(-1).ll, taken = new Set(places.map(x => x.name.replace(/^.*?: /, '')));
+  const cand = test => cat.filter(x => test(x) && !taken.has(x.name.replace(/^.*?: /, '')) && stayMin(x) < 480 && meters(x.ll, ref) < 5000)
+    .filter((x, i, a) => a.findIndex(y => y.name.replace(/^.*?: /, '') === x.name.replace(/^.*?: /, '')) === i)
+    .sort((a, b) => meters(a.ll, ref) - meters(b.ll, ref)).slice(0, 2);
+  const tips = [
+    !have.has('am') && di > 0 && ['아침에 가기 좋은 곳 (일찍 열어요)', cand(x => slotOf(x) === 'am')],
+    meals < (lastDay ? 1 : 2) && [meals ? '저녁 먹을 곳' : '점심·저녁 먹을 곳', cand(x => x.cat === 'food')],
+    !have.has('pm') && ['오후에 가기 좋은 곳', cand(x => slotOf(x) === 'pm')],
+    !have.has('sunset') && !lastDay && ['해 질 무렵에 가기 좋은 곳 (노을·야경)', cand(x => slotOf(x) === 'sunset')],
+    !have.has('night') && !lastDay && ['저녁 먹고 가기 좋은 곳', cand(x => slotOf(x) === 'night')],
+  ].filter(t => t && t[1].length);
+  if (!tips.length) return;
+  const box = Object.assign(document.createElement('div'), { innerHTML: '<b style="margin-top:8px">🧑‍💼 도우미 추천: 이런 곳을 더 넣어 보세요</b>' });
+  tips.forEach(([label, list]) => {
+    const row = Object.assign(document.createElement('div'), { className: 'sg', textContent: label + ' ' });
+    list.forEach(x => {
+      const b = Object.assign(document.createElement('button'), { textContent: '＋ ' + x.name.replace(/^.*?: /, '') });
+      b.onclick = () => slotInsert(x.name);
+      row.append(document.createElement('br'), b);
+    });
+    box.append(row);
+  });
+  $('b-eval').append(box);
 }
 function saveDraft(names) {
   const di = builderDay();
@@ -1316,25 +1690,22 @@ function saveDraft(names) {
   show(di);
   renderEval(di);
 }
-$('b-day').onchange = loadDraft;
-$('b-add').onclick = () => { const n = $('b-place').value; if (n && !draft.includes(n) && draft.length < 12) draft.push(n); renderDraft(); };
-$('b-save').onclick = () => saveDraft(draft);
+$('b-day').onchange = () => { loadDraft(); show(builderDay()); };
+$('b-clear').onclick = () => { draft = []; commit(); };
 $('b-reset').onclick = () => saveDraft([]);
 $('b-find').onclick = async () => {
   const name = clean($('b-q').value);
   if (!name) return;
   $('b-msg').textContent = '찾는 중…';
   try { // 오픈스트리트맵 검색으로 좌표를 찾음. 간사이 지역 안에서만
-    const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&viewbox=135.1,34.95,136.0,34.3&bounded=1&q=' + encodeURIComponent(name)).then(r => r.json());
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&viewbox=135.1,35.1,136.0,34.3&bounded=1&q=' + encodeURIComponent(name)).then(r => r.json());
     if (!r[0]) throw 0;
     S = normalize({ ...S, places: [...S.places.filter(x => x.name !== name), { name, ll: [+r[0].lon, +r[0].lat] }] });
     persist();
-    fillPlaces();
-    if (!draft.includes(name) && draft.length < 12) draft.push(name);
-    renderDraft();
     $('b-q').value = '';
-    $('b-msg').textContent = `「${name}」 추가됨. 저장한 뒤 지도에서 위치가 맞는지 확인하세요.`;
-  } catch { $('b-msg').textContent = '못 찾았어요. 일본어나 영어 이름으로 다시 검색해 보세요.'; }
+    $('b-msg').textContent = `「${name}」을(를) 넣었어요. 지도에서 위치가 맞는지 사진 칸을 눌러 확인하세요.`;
+    addToDraft(name);
+  } catch { $('b-msg').textContent = '못 찾았어요. 일본어나 영어 이름으로 다시 찾아 보세요.'; }
 };
 
 // 인터넷 주소로 열었을 때만 오프라인 저장 기능을 켬(sw.js)
