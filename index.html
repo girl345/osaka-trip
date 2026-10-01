@@ -620,6 +620,19 @@ function buildPlan(v) {
       stops = all.filter(x => x.fix || ((!first || mins(x.t) >= fixed.city) && (!last || mins(x.t) <= fixed.pickup - 30)))
         .sort((a, b) => a.t.localeCompare(b.t));
     }
+    // 마지막 날이 아니면 하루의 끝은 항상 숙소. 일정이 숙소에서 끝나지 않으면 숙소로 돌아가는 칸을 붙임
+    if (!last && !stops.at(-1).home) {
+      const end = stops.at(-1), t = mins(end.t) + (end.fix ? 0 : stayMin(end)) + travelMin(end.ll, home);
+      stops.push({
+        t: hhmm(t), home: true, cat: 'move', e: '🏨', ll: home, move: moveText(end.ll, home),
+        name: first ? '숙소 체크인 · 쉬기' : '숙소로 돌아가기',
+        desc: first ? '낮에 맡긴 짐을 찾아 방으로 들어갑니다. 체크인 마감 시간(보통 23시쯤)을 넘기지 않게 돌아오세요.' : '오늘 일정 끝. 숙소에서 쉬어요.',
+      });
+    }
+    // 하루 중간에 숙소에 들르는 칸은 '돌아가기'와 헷갈리지 않게 이름을 바꿈
+    stops.forEach((x, i) => { if (x.home && x.name === '숙소 복귀' && i < stops.length - 1) stops[i] = { ...x, name: '숙소에 들러 쉬기' }; });
+    // 첫날 마지막 칸은 어느 코스든 '체크인'으로 표시
+    if (first && stops.length > 2 && stops.at(-1).home) stops[stops.length - 1] = { ...stops.at(-1), name: '숙소 체크인 · 쉬기', desc: '낮에 맡긴 짐을 찾아 방으로 들어갑니다. 체크인 마감 시간(보통 23시쯤)을 넘기지 않게 돌아오세요.' };
     stops.forEach(x => x.fix || x.home || used.add(x.name));
     const dt = new Date(v.date + 'T00:00');
     dt.setDate(dt.getDate() + di);
@@ -631,11 +644,6 @@ function buildPlan(v) {
     };
   });
 }
-console.assert(buildPlan(DEFAULTS).map(d => d.stops.length).join() === '9,4,7', 'default plan changed');
-console.assert(buildPlan({ ...DEFAULTS, dep: '12:00' }).at(-1).stops.length === 2, 'early flight should leave only pickup + airport');
-console.assert(buildPlan({ ...DEFAULTS, nights: 4 }).length === 5, '4 nights should give 5 days');
-FIRSTS.forEach((d, i) => LASTS.forEach((e, j) => console.assert(buildPlan({ ...DEFAULTS, first: i, last: j }).every(x => x.stops.length >= 3), 'course broken', i, j)));
-DAY2.forEach((d, i) => console.assert(buildPlan({ ...DEFAULTS, themes: [i] })[1].sub === d.sub, 'theme not applied', i));
 
 // 1인 기준. krw = 원, jpy = 엔
 function budgetItems(plan, n, hotel) {
@@ -762,6 +770,12 @@ function evaluate(v, di, places) {
   console.assert(evaluate(DEFAULTS, 1, ['구로몬', '미즈노', '신사이바시스지', '아메리카무라', '글리코', '쿠시카츠'].map(pick)).score >= 85, 'compact plan should pass');
   console.assert(buildPlan({ ...DEFAULTS, custom: { 1: ['오사카성'] } })[1].stops.length === 3, 'custom day = departure + place + return');
 }
+
+console.assert(buildPlan(DEFAULTS).map(d => d.stops.length).join() === '10,4,7', 'default plan changed');
+console.assert(buildPlan({ ...DEFAULTS, dep: '12:00' }).at(-1).stops.length === 2, 'early flight should leave only pickup + airport');
+console.assert(buildPlan({ ...DEFAULTS, nights: 4 }).length === 5, '4 nights should give 5 days');
+FIRSTS.forEach((d, i) => LASTS.forEach((e, j) => console.assert(buildPlan({ ...DEFAULTS, first: i, last: j }).every(x => x.stops.length >= 3), 'course broken', i, j)));
+DAY2.forEach((d, i) => console.assert(buildPlan({ ...DEFAULTS, themes: [i] })[1].sub === d.sub, 'theme not applied', i));
 
 const total = (items, rate) => items.reduce((s, i) => s + (i.krw || 0) + (i.jpy || 0) * rate, 0);
 console.assert(total([{ krw: 100 }, { jpy: 10 }], 9) === 190, 'budget total broken');
