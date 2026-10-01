@@ -56,13 +56,19 @@
   #map[data-z=mid] .pin.small span { display: none; }
   #map[data-z=far] .pin.small.keep, #map[data-z=mid] .pin.small.keep { width: 34px; height: 34px; border-width: 3px; font-size: 17px; }
   #map[data-z=far] .pin.small.keep span, #map[data-z=mid] .pin.small.keep span { display: block; }
+  #map:not(.all) .pin.extra:not(.sel):not(.keep) { display: none; }
   .pin.small { width: 34px; height: 34px; font-size: 17px; }
-  /* 장소 정보 창: 넓은 화면은 지도 왼쪽, 좁은 화면(휴대폰)은 지도 아래쪽 */
-  #info { position: absolute; z-index: 3; left: 10px; top: 96px; width: 250px; max-height: calc(100% - 180px); overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 2px 10px #0005; }
+  /* 장소 정보 창: 넓은 화면은 지도 오른쪽(왼쪽의 근처 목록을 가리지 않게), 좁은 화면(휴대폰)은 지도 아래쪽(그동안 근처 목록은 접어 둠) */
+  #info { position: absolute; z-index: 3; right: 10px; top: 96px; width: 250px; max-height: calc(100% - 180px); overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 2px 10px #0005; }
   #info[hidden] { display: none; }
   /* 지금 지도 화면 안에 있는 맛집·장소 사진 목록: 넓은 화면은 지도 왼쪽에 세로로, 좁은 화면은 지도 아래쪽에 가로로 */
   #nearby { position: absolute; z-index: 2; left: 10px; top: 96px; bottom: 44px; width: 132px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; scrollbar-width: thin; }
   #nearby:empty { display: none; }
+  /* 내 핀: 항상 지도 한가운데에 떠 있는 기준점. 지도를 움직이면 이 핀 근처 장소가 목록에 나옴 */
+  #me { position: absolute; z-index: 1; left: 50%; top: 50%; transform: translate(-50%, -100%); font-size: 34px; line-height: 1; pointer-events: none; text-align: center; filter: drop-shadow(0 2px 2px #0006); }
+  #me span { display: block; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); font-size: 11px; font-weight: 700; background: #222; color: #fff; padding: 1px 6px; border-radius: 8px; white-space: nowrap; }
+  #mapwrap.nomap #me { display: none; }
+  .nb small { display: block; padding: 0 6px 4px; color: #666; }
   #nearby h4 { margin: 0; padding: 3px 8px; font-size: 12px; background: #222; color: #fff; border-radius: 10px; align-self: flex-start; flex: none; }
   .nb { flex: none; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 5px #0004; cursor: pointer; font-size: 12px; line-height: 1.3; }
   .nb .thumb { height: 64px; border-radius: 0; }
@@ -82,7 +88,8 @@
   #mapwrap.nomap::after { content: '지도를 불러오지 못했습니다(인터넷 연결을 확인하세요). 일정표와 교통 안내는 그대로 볼 수 있어요.'; font-size: 13px; color: #666; }
   #mapwrap.nomap #info { position: static; width: auto; max-height: none; margin-bottom: 8px; }
   #info .x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #fffc; font-size: 16px; cursor: pointer; }
-  @media (max-width: 899px) { #info { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; max-height: 42%; } }
+  @media (max-width: 899px) { #info { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; max-height: 42%; } #mapwrap.hasinfo #nearby { display: none; } }
+  #mapwrap.hasinfo #me { display: none; }
   .card { font-size: 13px; }
   .card .thumb { height: 90px; margin-bottom: 6px; font-size: 44px; }
   .card b { font-size: 15px; }
@@ -141,6 +148,7 @@
     <div id="tabs"></div>
     <div id="map"></div>
     <button id="home" title="지도를 처음 보기로 되돌림">⟲ 원위치</button>
+    <div id="me" title="지도를 움직이면 이 핀 근처의 맛집과 장소가 왼쪽에 나옵니다">📍<span>내 핀</span></div>
     <div id="nearby"></div>
     <div id="info" hidden></div>
     <details id="legend"><summary>ℹ️ 지도 보는 법 · 표시 설정</summary></details>
@@ -768,7 +776,7 @@ function evaluate(v, di, places) {
   find: for (let i = 0; i < places.length; i++) for (let j = i + 2; j < places.length; j++)
     if (meters(places[i].ll, places[j].ll) < 700) for (let k = i + 1; k < j; k++)
       if (meters(places[i].ll, places[k].ll) > 2000) { why = `${q(places[i].name)}와 ${q(places[j].name)}는 바로 옆인데, 그 사이에 멀리 떨어진 ${q(places[k].name)}를 다녀옵니다. `; break find; }
-  const wasted = mine.travel - opt.travel, tangled = wasted >= 20 || (why && wasted >= 10);
+  const wasted = mine.travel - opt.travel, tangled = wasted >= 20 || (why && wasted >= 5);
   if (tangled) bad(25, `동선이 꼬였어요. ${why}이 순서는 이동에만 약 ${mine.travel}분 걸리는데, 순서만 바꾸면 약 ${opt.travel}분입니다 (${wasted}분 절약).`);
   if (mine.end > limit) {
     const limitTxt = last ? `공항열차 시간(${hhmm(limit + 20)})에 못 맞춥니다` : `밤 ${hhmm(limit)}을 넘깁니다`;
@@ -911,10 +919,12 @@ function freeArea() {
 function focus(p, zoom) {
   if (!ready) return;
   const { wide, w, h } = freeArea();
-  map.easeTo({ center: p.ll, offset: wide ? [Math.max(70, 300 - w / 2), 0] : [0, -h * 0.25], ...(zoom && { zoom, pitch: 60 }) });
+  // 넓은 화면: 왼쪽 근처 목록(약 150px)과 오른쪽 정보 창(약 270px) 사이의 가운데. 좁은 화면: 아래쪽 정보 창 위의 가운데
+  map.easeTo({ center: p.ll, offset: wide ? [-60, 0] : [0, -h * 0.25], ...(zoom && { zoom, pitch: 60 }) });
 }
 function closeInfo() {
   $('info').hidden = true;
+  $('mapwrap').classList.remove('hasinfo');
   markers.forEach(x => x.getElement().classList.remove('sel'));
 }
 
@@ -922,7 +932,7 @@ function closeInfo() {
 function fitLeg(a, b, card) {
   if (!ready) return;
   const { wide, h } = freeArea();
-  const padding = { top: 100, bottom: card && !wide ? h * 0.5 + 30 : 80, left: card && wide ? 300 : 60, right: 70 };
+  const padding = { top: 100, bottom: card && !wide ? h * 0.5 + 30 : wide ? 80 : 130, left: wide ? 170 : 60, right: card && wide ? 290 : 70 };
   map.fitBounds(new maplibregl.LngLatBounds(a.ll, a.ll).extend(b.ll), { padding, maxZoom: 16, pitch: 50, bearing: -15 });
   $('mapwrap').scrollIntoView({ behavior: 'smooth' });
 }
@@ -961,6 +971,7 @@ function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 �
     const x = Object.assign(document.createElement('button'), { className: 'x', textContent: '✕', onclick: closeInfo });
     $('info').replaceChildren(card, x);
     $('info').hidden = false;
+    $('mapwrap').classList.add('hasinfo');
     $('info').scrollTop = 0;
     markers.forEach(o => o.getElement().classList.toggle('sel', o === m));
   };
@@ -1020,19 +1031,20 @@ async function loadWalks(di) {
   if (PLAN[di]) map.getSource('route' + di).setData(routeData(PLAN[di].stops));
 }
 
-// 지금 지도 화면 안에 있는 장소를 사진 카드로 나열. 맛집을 먼저, 그다음 화면 가운데에서 가까운 순으로 최대 8곳
+// 지도 한가운데의 「내 핀」에서 걸어갈 만한 거리(800m) 안의 장소를 가까운 순으로 최대 8곳 나열.
+// 그 안에 아무것도 없으면 가장 가까운 3곳을 거리와 함께 보여 줌
 function renderNearby() {
   if (!ready) return;
-  const b = map.getBounds(), c = map.getCenter().toArray();
-  const list = catalog(S).filter(x => b.contains(x.ll))
-    .sort((x, y) => (y.cat === 'food') - (x.cat === 'food') || meters(c, x.ll) - meters(c, y.ll))
-    .filter((x, i, all) => all.findIndex(y => y.name.replace(/^.*?: /, '') === x.name.replace(/^.*?: /, '')) === i) // '점심: A'와 '저녁: A'는 한 번만
-    .slice(0, 8);
+  const c = map.getCenter().toArray();
+  const all = catalog(S).map(x => ({ ...x, dist: meters(c, x.ll) })).sort((x, y) => x.dist - y.dist)
+    .filter((x, i, a) => a.findIndex(y => y.name.replace(/^.*?: /, '') === x.name.replace(/^.*?: /, '')) === i); // '점심: A'와 '저녁: A'는 한 번만
+  const close = all.filter(x => x.dist <= 800).slice(0, 8), list = close.length ? close : all.slice(0, 3);
   const box = $('nearby');
-  box.innerHTML = list.length ? '<h4>📍 이 근처</h4>' : '';
+  box.innerHTML = `<h4>📍 내 핀 ${close.length ? '근처' : '에서 가장 가까운 곳'}</h4>`;
   list.forEach(p => {
     const card = Object.assign(document.createElement('div'), { className: 'nb', title: p.name });
-    card.append(thumb(p, 'thumb'), Object.assign(document.createElement('span'), { textContent: (p.cat === 'food' ? '🍴 ' : '') + p.name.replace(/^.*?: /, '') }));
+    card.append(thumb(p, 'thumb'), Object.assign(document.createElement('span'), { textContent: (p.cat === 'food' ? '🍴 ' : '') + p.name.replace(/^.*?: /, '') }),
+      Object.assign(document.createElement('small'), { textContent: p.dist < 1200 ? `걸어서 약 ${walkMin(c, p.ll)}분` : `약 ${(p.dist / 1000).toFixed(1)}km` }));
     card.onclick = () => {
       let m = markers.find(x => x.place === p.name);
       if (!m) { m = addMarker(p, '', true); m.getElement().classList.add('keep'); }
@@ -1055,16 +1067,16 @@ function show(sel = cur) { // sel = -1 전체, 0~ 일차
   sched.innerHTML = '';
   if (ready) COLORS.forEach((c, i) => ['', 'bg', 'rail', 'arrow'].forEach(x => map.setLayoutProperty('route' + i + x, 'visibility', i < PLAN.length && (sel < 0 || sel === i) ? 'visible' : 'none')));
   AVOID.forEach(p => addMarker(p, '!', true));
-  HOTELS.forEach((p, i) => addMarker(p, i === S.hotel ? '내 숙소' : '', i !== S.hotel));
+  // extra = 일정에 없는 곳의 핀. 평소에는 숨기고, 「모든 장소 표시」를 켜거나 목록에서 고른 것만 보임
+  const extra = m => (m.getElement().classList.add('extra'), m);
+  HOTELS.forEach((p, i) => { const m = addMarker(p, i === S.hotel ? '내 숙소' : '', i !== S.hotel); if (i !== S.hotel) extra(m); });
   const hotel = HOTELS[S.hotel];
   $('nearlist').innerHTML = NEAR.length ? '' : '<p class="note">걸어갈 만한 곳은 이미 일정에 모두 들어 있습니다.</p>';
-  NEAR.forEach(p => $('nearlist').append(stopRow(p, p.name, `숙소에서 도보 약 ${walkMin(hotel.ll, p.ll)}분${p.cost ? ' · ' + p.cost : ''}`, addMarker(p, '+', true))));
+  NEAR.forEach(p => $('nearlist').append(stopRow(p, p.name, `숙소에서 도보 약 ${walkMin(hotel.ll, p.ll)}분${p.cost ? ' · ' + p.cost : ''}`, extra(addMarker(p, '+', true)))));
 
-  // 일정에 없는 장소도 작은 핀으로 전부 표시(먼저 그려서 일정 핀 아래에 깔림)
-  if ($('allpins').checked) {
-    const shown = new Set([...PLAN.filter((d, i) => sel < 0 || sel === i).flatMap(d => d.stops), ...NEAR].map(x => x.name));
-    catalog(S).filter(x => !shown.has(x.name)).forEach(x => addMarker(x, '', true, true));
-  }
+  // 일정에 없는 장소의 핀(먼저 그려서 일정 핀 아래에 깔림)
+  const shown = new Set([...PLAN.filter((d, i) => sel < 0 || sel === i).flatMap(d => d.stops), ...NEAR].map(x => x.name));
+  catalog(S).filter(x => !shown.has(x.name)).forEach(x => extra(addMarker(x, '', true, true)));
 
   PLAN.forEach((d, di) => {
     if (ready) map.getSource('route' + di).setData(routeData(d.stops));
@@ -1087,7 +1099,7 @@ function show(sel = cur) { // sel = -1 전체, 0~ 일차
       sched.append(row);
     });
   });
-  if (ready) map.fitBounds(bounds, { padding: { top: 70, bottom: 40, left: 40, right: 40 }, pitch: 55, bearing: -15, maxZoom: 15 });
+  if (ready) { const { wide } = freeArea(); map.fitBounds(bounds, { padding: { top: 70, bottom: wide ? 40 : 130, left: wide ? 170 : 40, right: 40 }, pitch: 55, bearing: -15, maxZoom: 15 }); }
 }
 
 function renderBudget() {
@@ -1190,9 +1202,9 @@ $('guide-x').onclick = () => { try { localStorage.setItem('osaka-guide-off', '1'
 document.querySelectorAll('#menu [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
 go('plan');
 $('legend').insertAdjacentHTML('beforeend', Object.values(CAT).map(c => `<i style="background:${c.c}"></i>${c.label}`).join(''));
-$('legend').insertAdjacentHTML('beforeend', ' <label style="margin-left:8px;white-space:nowrap"><input type="checkbox" id="allpins" checked> 모든 장소 표시</label>');
-$('legend').insertAdjacentHTML('beforeend', '<br><b>━</b> 걸어서 (실제 길) &nbsp; <b>┅</b> 전철 &nbsp; ▶ 가는 방향<br>일정 핀과 선의 색 = 날짜 색 (위 탭 밑줄 색과 같음)<br>작은 점 = 일정에 없는 곳 (지도를 확대하면 사진으로 바뀜)<br>지도 바탕의 작은 그림(식당·가게·역)도 누르면 이름이 나오고 일정에 담을 수 있어요');
-$('allpins').onchange = () => show();
+$('legend').insertAdjacentHTML('beforeend', ' <label style="margin-left:8px;white-space:nowrap"><input type="checkbox" id="allpins"> 일정에 없는 장소도 지도에 표시</label>');
+$('legend').insertAdjacentHTML('beforeend', '<br><b>━</b> 걸어서 (실제 길) &nbsp; <b>┅</b> 전철 &nbsp; ▶ 가는 방향<br>일정 핀과 선의 색 = 날짜 색 (위 탭 밑줄 색과 같음)<br>작은 점 = 일정에 없는 곳 (지도를 확대하면 사진으로 바뀜)<br>📍 내 핀 = 지도 한가운데. 지도를 움직이면 그 근처 맛집·장소가 왼쪽 목록에 나옴<br>지도 바탕의 작은 그림(식당·가게·역)도 누르면 이름이 나오고 일정에 담을 수 있어요');
+$('allpins').onchange = () => $('map').classList.toggle('all', $('allpins').checked);
 $('home').onclick = () => show();
 
 // 설정 폼. 값을 바꾸는 즉시 저장하고 일정을 다시 계산함
@@ -1345,7 +1357,7 @@ map?.on('load', () => {
     const name = f && clean(f.properties['name:ko'] || (en && local && en !== local ? `${en} (${local})` : local || en || ''));
     if (!name) return closeInfo();
     const place = catalog(S).find(c => c.name === name) || { name, ll: f.geometry.coordinates.slice(0, 2), cat: 'sight', e: '📍', desc: '지도에 표시된 가게·장소입니다. 아래 링크로 어떤 곳인지 확인해 보세요.' };
-    const m = addMarker(place, '', true, true);
+    const m = markers.find(x => x.place === place.name) || addMarker(place, '', true, true);
     m.getElement().classList.add('keep');
     m.open();
     focus(place);
