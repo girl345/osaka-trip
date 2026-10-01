@@ -978,7 +978,7 @@ function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 �
     if (ready && wide) {
       // 넓은 화면: 설명을 핀 바로 위 말풍선으로. 핀이 지도 가운데에 오므로 위쪽 절반 안에 들어가게 높이를 제한(넘치면 말풍선 안에서 스크롤)
       card.style.maxHeight = Math.max(150, h / 2 - (small ? 44 : 58) - 78) + 'px';
-      pop = new maplibregl.Popup({ offset: small ? 40 : 54, anchor: 'bottom', maxWidth: '280px', closeOnClick: false }).setLngLat(p.ll).setDOMContent(card).addTo(map);
+      pop = new maplibregl.Popup({ offset: small ? 40 : 54, anchor: 'bottom', maxWidth: '280px', closeOnClick: false, focusAfterOpen: false }).setLngLat(p.ll).setDOMContent(card).addTo(map);
       pop.on('close', () => { if (pop) { pop = null; closeInfo(); } });
     } else {
       // 좁은 화면(휴대폰): 말풍선이 들어갈 자리가 없어 지도 아래쪽 창에 표시
