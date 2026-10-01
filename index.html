@@ -284,16 +284,16 @@ const DAY2 = [
 
 // 가격: Booking.com 2026-10-01 조회, 11/10~12 2박, 성인 3명 1실 총액
 const HOTELS = [
-  { q: 'Hotel Sobial Namba Daikokucho', metro: '다이코쿠초', name: '① 호텔 소비알 난바 다이코쿠초 (1순위)', cat: 'hotel', e: '🏨', ll: [135.4976, 34.65559], desc: '후기 8.8점(3,066개). 다이코쿠초역 6번 출구 도보 1분(난바에서 지하철 한 정거장, 걸어서 약 15분). 수페리어 트윈 + 소파베드 방. 객실은 샤워부스만 있고 욕조는 없음(대욕장 이용). 잠옷·드라이기·세면도구 제공. 체크인 15~23시.', night: 148000, cost: '2박 총 약 29만 6천원 (1박 약 14만 8천원, 세금 포함)' },
-  { q: 'Kamon Hotel Namba', name: '② 카몬 호텔 난바', cat: 'hotel', e: '🏨', ll: [135.5053, 34.66615], desc: '후기 8.1점(2,400개). 닛폰바시역 도보 2분, 난바역 도보 약 8분으로 셋 중 번화가에 가장 가까움. 4베드룸(20㎡)은 폭 120cm 2층 침대 2대라 3명이 각자 침대를 씁니다. 가운·칫솔·샴푸·드라이기 제공. 예약 화면에서 방 종류가 4베드룸인지 확인.', night: 130500, cost: '2박 총 약 26만 1천원 (1박 약 13만원, 추가 요금 있을 수 있음)' },
-  { q: 'Weekly Green In Namba', metro: '다이코쿠초', name: '③ 위클리 그린 인 난바 (최저가)', cat: 'hotel', e: '🏨', ll: [135.49606, 34.65696], desc: '후기 8.2점(1,421개). 트리플룸, 금연. 다이코쿠초역 도보 3분(난바역 약 900m). 위클리 맨션형이라 프런트가 24시간이 아니고 비품이 적음 — 잠옷·칫솔·샴푸는 챙겨 가세요. 간이 주방과 코인 세탁기 있음.', night: 86000, cost: '2박 총 약 17만 2천원 (1박 약 8만 6천원, 추가 요금 있을 수 있음)' },
+  { q: 'Hotel Sobial Namba Daikokucho', metro: '다이코쿠초', name: '① 호텔 소비알 난바 다이코쿠초 (1순위)', cat: 'hotel', e: '🏨', ll: [135.4976, 34.65559], wiki: 'ja:大国町駅', desc: '후기 8.8점(3,066개). 다이코쿠초역 6번 출구 도보 1분(난바에서 지하철 한 정거장, 걸어서 약 15분). 수페리어 트윈 + 소파베드 방. 객실은 샤워부스만 있고 욕조는 없음(대욕장 이용). 잠옷·드라이기·세면도구 제공. 체크인 15~23시.', night: 148000, cost: '2박 총 약 29만 6천원 (1박 약 14만 8천원, 세금 포함)' },
+  { q: 'Kamon Hotel Namba', name: '② 카몬 호텔 난바', cat: 'hotel', e: '🏨', ll: [135.5053, 34.66615], wiki: 'ja:千日前', desc: '후기 8.1점(2,400개). 닛폰바시역 도보 2분, 난바역 도보 약 8분으로 셋 중 번화가에 가장 가까움. 4베드룸(20㎡)은 폭 120cm 2층 침대 2대라 3명이 각자 침대를 씁니다. 가운·칫솔·샴푸·드라이기 제공. 예약 화면에서 방 종류가 4베드룸인지 확인.', night: 130500, cost: '2박 총 약 26만 1천원 (1박 약 13만원, 추가 요금 있을 수 있음)' },
+  { q: 'Weekly Green In Namba', metro: '다이코쿠초', name: '③ 위클리 그린 인 난바 (최저가)', cat: 'hotel', e: '🏨', ll: [135.49606, 34.65696], wiki: 'ja:今宮駅', desc: '후기 8.2점(1,421개). 트리플룸, 금연. 다이코쿠초역 도보 3분(난바역 약 900m). 위클리 맨션형이라 프런트가 24시간이 아니고 비품이 적음 — 잠옷·칫솔·샴푸는 챙겨 가세요. 간이 주방과 코인 세탁기 있음.', night: 86000, cost: '2박 총 약 17만 2천원 (1박 약 8만 6천원, 추가 요금 있을 수 있음)' },
 ];
 
 const AVOID = [
-  { name: '도비타신치', cat: 'warn', e: '⛔', ll: [135.5048, 34.6433], desc: '유흥업소 밀집 지역. 미성년자 동반 부적절, 사진 촬영 금지. 가지 마세요.' },
-  { name: '니시나리(아이린 지구) 야간', cat: 'warn', e: '⛔', ll: [135.4995, 34.6465], desc: '신이마미야역 남쪽. 밤에는 지나가지 마세요. 싼 숙소가 많아도 예약 금지.' },
-  { name: '소에몬초 밤거리', cat: 'warn', e: '⚠️', ll: [135.50337, 34.66943], desc: '도톤보리 북쪽 유흥가. 호객꾼이 말을 걸어도 따라가지 마세요.' },
-  { name: '글리코 다리 밑 (늦은 밤)', cat: 'warn', e: '⚠️', ll: [135.5011, 34.6690], desc: '밤 10시 이후 가출 청소년·취객이 모이는 곳. 학생들끼리만 보내지 마세요.' },
+  { name: '도비타신치', cat: 'warn', e: '⛔', ll: [135.5048, 34.6433], wiki: 'ja:飛田新地', desc: '유흥업소 밀집 지역. 미성년자 동반 부적절, 사진 촬영 금지. 가지 마세요.' },
+  { name: '니시나리(아이린 지구) 야간', cat: 'warn', e: '⛔', ll: [135.4995, 34.6465], wiki: 'ja:萩ノ茶屋駅', desc: '신이마미야역 남쪽. 밤에는 지나가지 마세요. 싼 숙소가 많아도 예약 금지.' },
+  { name: '소에몬초 밤거리', cat: 'warn', e: '⚠️', ll: [135.50337, 34.66943], wiki: 'ja:宗右衛門町', desc: '도톤보리 북쪽 유흥가. 호객꾼이 말을 걸어도 따라가지 마세요.' },
+  { name: '글리코 다리 밑 (늦은 밤)', cat: 'warn', e: '⚠️', ll: [135.5011, 34.6690], wiki: 'ja:戎橋', desc: '밤 10시 이후 가출 청소년·취객이 모이는 곳. 학생들끼리만 보내지 마세요.' },
 ];
 
 const TIPS = [
@@ -793,7 +793,7 @@ console.assert(total([{ krw: 100 }, { jpy: 10 }], 9) === 190, 'budget total brok
 // 위키백과 대표 사진. 모든 장소의 사진 주소를 언어별로 한 번에 받아 imgs에 담음. 실패하면 이모지 그대로
 const imgs = {};
 const imgsReady = (async () => {
-  const keys = [...new Set([...DAYS, ...DAY2, ...FIRSTS, ...LASTS].flatMap(d => d.stops).concat(EXTRA, Object.values(TASTES).flatMap(t => t.spots)).map(x => x.wiki).filter(Boolean))];
+  const keys = [...new Set([...DAYS, ...DAY2, ...FIRSTS, ...LASTS].flatMap(d => d.stops).concat(EXTRA, HOTELS, AVOID, Object.values(TASTES).flatMap(t => t.spots)).map(x => x.wiki).filter(Boolean))];
   const byLang = {};
   for (const k of keys) { const ja = k.startsWith('ja:'); (byLang[ja ? 'ja' : 'en'] ??= {})[ja ? k.slice(3) : k] = k; }
   await Promise.all(Object.entries(byLang).flatMap(([lang, map]) => {
@@ -917,6 +917,8 @@ function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 �
     b.style.marginTop = '8px';
     b.textContent = '＋ 내 일정에 담기';
     b.onclick = () => {
+      // 목록에 없던 곳(지도에서 직접 누른 가게 등)은 내 장소로 저장해 둠
+      if (!catalog(S).some(c => c.name === p.name)) { S = normalize({ ...S, places: [...S.places, { name: p.name, ll: p.ll }] }); persist(); fillPlaces(); }
       if (!draft.includes(p.name) && draft.length < 12) draft.push(p.name);
       renderDraft();
       b.textContent = `✓ ${builderDay() + 1}일차에 담았어요 → 「내가 직접 짜기」에서 저장`;
@@ -997,7 +999,7 @@ function show(sel = cur) { // sel = -1 전체, 0~ 일차
   const sched = $('schedule');
   sched.innerHTML = '';
   if (ready) COLORS.forEach((c, i) => ['', 'bg', 'rail', 'arrow'].forEach(x => map.setLayoutProperty('route' + i + x, 'visibility', i < PLAN.length && (sel < 0 || sel === i) ? 'visible' : 'none')));
-  AVOID.forEach(p => addMarker(p, '', true));
+  AVOID.forEach(p => addMarker(p, '!', true));
   HOTELS.forEach((p, i) => addMarker(p, i === S.hotel ? '내 숙소' : '', i !== S.hotel));
   const hotel = HOTELS[S.hotel];
   $('nearlist').innerHTML = NEAR.length ? '' : '<p class="note">걸어갈 만한 곳은 이미 일정에 모두 들어 있습니다.</p>';
@@ -1090,7 +1092,7 @@ function renderHotels() {
   out.setDate(d.getDate() + S.nights);
   $('hotellist').innerHTML = li(HOTELS.map(h => `<b>${h.name}</b> — ${h.desc} (${h.cost})<br><a href="https://www.booking.com/searchresults.ko.html?ss=${encodeURIComponent(h.q + ' Osaka')}&checkin=${iso(d)}&checkout=${iso(out)}&group_adults=${PEOPLE}&no_rooms=1&group_children=0&selected_currency=KRW" target="_blank" rel="noopener">🔎 ${PLAN[0].date}~${PLAN.at(-1).date} ${PEOPLE}명 실제 요금 확인</a>`));
 }
-$('hotels').insertAdjacentHTML('beforeend', '<div id="hotellist" class="links"></div><p class="note">표시된 가격은 Booking.com에서 2026-10-01에 조회한 11/10~12 요금(성인 3명 1실)입니다. 날짜를 바꿨거나 예약 직전이라면 각 숙소의 「실제 요금 확인」을 눌러 그 날짜 요금을 보세요. 후기 1~2개뿐인 민박형 아파트와 니시나리(신이마미야·동물원앞역) 쪽 숙소는 더 싸도 제외했습니다.</p>');
+$('hotels').insertAdjacentHTML('beforeend', '<div id="hotellist" class="links"></div><p class="note">숙소 핀의 사진은 숙소 건물이 아니라 바로 근처 역·거리 사진입니다(방 사진은 「실제 요금 확인」에서). 표시된 가격은 Booking.com에서 2026-10-01에 조회한 11/10~12 요금(성인 3명 1실)입니다. 날짜를 바꿨거나 예약 직전이라면 각 숙소의 「실제 요금 확인」을 눌러 그 날짜 요금을 보세요. 후기 1~2개뿐인 민박형 아파트와 니시나리(신이마미야·동물원앞역) 쪽 숙소는 더 싸도 제외했습니다.</p>');
 $('avoid').insertAdjacentHTML('beforeend', li(AVOID.map(a => `<b>${a.name}</b> — ${a.desc}`)) + '<p class="note">지도에 빨간색 핀으로 표시.</p>');
 $('tips').insertAdjacentHTML('beforeend', li(TIPS));
 $('pack').insertAdjacentHTML('beforeend', PACK.map(g => `<h3 style="color:${g.c}">${g.title}</h3>` + li(g.items)).join('') + '<p class="note">숙소 비품(잠옷, 세면도구, 드라이기)은 호텔마다 다르니 예약 페이지의 「시설」에서 한 번 확인하세요.</p>');
@@ -1134,7 +1136,7 @@ document.querySelectorAll('#menu [data-go]').forEach(b => b.onclick = () => go(b
 go('plan');
 $('legend').insertAdjacentHTML('beforeend', Object.values(CAT).map(c => `<i style="background:${c.c}"></i>${c.label}`).join(''));
 $('legend').insertAdjacentHTML('beforeend', ' <label style="margin-left:8px;white-space:nowrap"><input type="checkbox" id="allpins" checked> 모든 장소 표시</label>');
-$('legend').insertAdjacentHTML('beforeend', '<br><b>━</b> 걸어서 (실제 길) &nbsp; <b>┅</b> 전철 &nbsp; ▶ 가는 방향<br>일정 핀과 선의 색 = 날짜 색 (위 탭 밑줄 색과 같음)<br>작은 점 = 일정에 없는 곳 (지도를 확대하면 사진으로 바뀜)');
+$('legend').insertAdjacentHTML('beforeend', '<br><b>━</b> 걸어서 (실제 길) &nbsp; <b>┅</b> 전철 &nbsp; ▶ 가는 방향<br>일정 핀과 선의 색 = 날짜 색 (위 탭 밑줄 색과 같음)<br>작은 점 = 일정에 없는 곳 (지도를 확대하면 사진으로 바뀜)<br>지도 바탕의 작은 그림(식당·가게·역)도 누르면 이름이 나오고 일정에 담을 수 있어요');
 $('allpins').onchange = () => show();
 $('home').onclick = () => show();
 
@@ -1275,7 +1277,24 @@ map?.on('load', () => {
     map.addLayer({ id: id + 'rail', type: 'line', source: id, filter: mode('rail'), paint: { 'line-color': c, 'line-width': 6, 'line-dasharray': [1.6, 1] } });
     map.addLayer({ id: id + 'arrow', type: 'symbol', source: id, layout: { 'symbol-placement': 'line', 'symbol-spacing': 60, 'icon-image': 'route-arrow', 'icon-size': 0.9, 'icon-allow-overlap': true, 'icon-ignore-placement': true } });
   });
-  map.on('click', closeInfo);
+  // 지도 바탕에 원래 그려진 작은 그림(식당·가게·역 등)도 누르면 이름과 링크가 나오고 일정에 담을 수 있게 함
+  const pois = map.getStyle().layers.filter(l => l.type === 'symbol' && l.id.startsWith('poi')).map(l => l.id);
+  pois.forEach(id => {
+    map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer');
+    map.on('mouseleave', id, () => map.getCanvas().style.cursor = '');
+  });
+  map.on('click', e => {
+    const f = map.queryRenderedFeatures([[e.point.x - 8, e.point.y - 8], [e.point.x + 8, e.point.y + 8]], { layers: pois })[0];
+    // 지도 자료에 한글 이름은 거의 없어서 영어 이름 뒤에 현지(일본어) 이름을 같이 보여 줌
+    const en = f?.properties.name_en, local = f?.properties.name;
+    const name = f && clean(f.properties['name:ko'] || (en && local && en !== local ? `${en} (${local})` : local || en || ''));
+    if (!name) return closeInfo();
+    const place = catalog(S).find(c => c.name === name) || { name, ll: f.geometry.coordinates.slice(0, 2), cat: 'sight', e: '📍', desc: '지도에 표시된 가게·장소입니다. 아래 링크로 어떤 곳인지 확인해 보세요.' };
+    const m = addMarker(place, '', true, true);
+    m.getElement().classList.add('keep');
+    m.open();
+    focus(place);
+  });
   const setZ = () => { const z = map.getZoom(); $('map').dataset.z = z < 13.3 ? 'far' : z < 14.8 ? 'mid' : 'near'; };
   map.on('zoom', setZ);
   setZ();
