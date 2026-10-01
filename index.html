@@ -44,14 +44,24 @@
   .move sup { color: #888; font-size: 10px; margin-left: 1px; }
   .move a { color: #06c; text-decoration: none; font-weight: 700; }
   .thumb { border-radius: 10px; background: #eee center/cover; display: grid; place-items: center; font-size: 26px; }
-  .pin { width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--c); background: #fff center/cover; display: grid; place-items: center; font-size: 22px; box-shadow: 0 3px 6px #0006; cursor: pointer; } /* position은 지도 라이브러리가 absolute로 지정. 여기서 바꾸면 핀이 밀림 */
+  .pin { width: 46px; height: 46px; border-radius: 50%; border: 4px solid var(--c); background: #fff center/cover; display: grid; place-items: center; font-size: 22px; box-shadow: 0 3px 6px #0006; cursor: pointer; } /* position은 지도 라이브러리가 absolute로 지정. 여기서 바꾸면 핀이 밀림 */
   .pin span { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--c); color: #fff; font: 700 12px/20px system-ui; text-align: center; }
   .pin.sel { outline: 4px solid #222; outline-offset: 2px; z-index: 5; }
   .move { cursor: pointer; }
+  /* 지도 확대 정도(#map의 data-z)에 따라 핀 크기를 바꿈: far 멀리, mid 중간, near 가까이 */
+  #map[data-z=far] .pin:not(.small) { width: 34px; height: 34px; font-size: 16px; }
+  #map[data-z=far] .pin.small { width: 12px; height: 12px; border-width: 2px; font-size: 0; background-image: none !important; box-shadow: none; }
+  #map[data-z=far] .pin.small span { display: none; }
+  #map[data-z=mid] .pin.small { width: 24px; height: 24px; border-width: 2px; font-size: 12px; }
+  #map[data-z=mid] .pin.small span { display: none; }
+  #map[data-z=far] .pin.small.keep, #map[data-z=mid] .pin.small.keep { width: 34px; height: 34px; border-width: 3px; font-size: 17px; }
+  #map[data-z=far] .pin.small.keep span, #map[data-z=mid] .pin.small.keep span { display: block; }
   .pin.small { width: 34px; height: 34px; font-size: 17px; }
   /* 장소 정보 창: 넓은 화면은 지도 왼쪽, 좁은 화면(휴대폰)은 지도 아래쪽 */
   #info { position: absolute; z-index: 3; left: 10px; top: 96px; width: 250px; max-height: calc(100% - 180px); overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 2px 10px #0005; }
   #info[hidden] { display: none; }
+  details#legend { margin: 0; padding: 4px 8px; background: #fffe; box-shadow: 0 1px 4px #0003; max-width: calc(100% - 70px); }
+  #legend summary { font-size: 12px; }
   /* 지도를 못 불러온 경우: 지도 자리를 줄이고 안내문 표시, 장소 정보는 그 아래에 그대로 */
   #mapwrap.nomap { flex: 0 0 auto; padding: 58px 10px 10px; }
   #mapwrap.nomap #map, #mapwrap.nomap #legend, #mapwrap.nomap #home { display: none; }
@@ -118,7 +128,7 @@
     <div id="map"></div>
     <button id="home" title="지도를 처음 보기로 되돌림">⟲ 원위치</button>
     <div id="info" hidden></div>
-    <div id="legend"></div>
+    <details id="legend"><summary>ℹ️ 지도 보는 법 · 표시 설정</summary></details>
   </div>
   <div id="panel">
     <h1 id="h1"></h1>
@@ -220,7 +230,7 @@ const DAYS = [
     { t: '10:30', fix: 'arr', name: '간사이공항 도착', cat: 'move', e: '✈️', ll: [135.2440, 34.4347], wiki: 'Kansai International Airport', desc: '인천공항에는 출발 2시간 30분 전까지 도착. 입국심사 약 1시간. Visit Japan Web QR을 미리 준비하면 빠릅니다.' },
     { t: '12:30', fix: 'city', name: '난바역 · 숙소에 짐 맡기기', cat: 'move', e: '🚉', ll: [135.5019, 34.6636], wiki: 'Namba Station', move: '🚆 난카이 공항급행 약 45분 · 약 970엔 (특급 라피트 약 38분 · 약 1,670엔)', desc: '체크인 전에도 프런트에서 짐을 맡아줍니다.' },
     { t: '13:00', name: '점심: 미즈노 (오코노미야키)', cat: 'food', e: '🥞', ll: [135.50322, 34.66837], wiki: 'Okonomiyaki', cost: '1인 약 1,500~2,000엔', move: '🚶 도보 7분', desc: '도톤보리 대표 오코노미야키. 11:00~22:00, 정기 휴무 없음. 대기 30분 이상일 수 있어요. 줄이 길면 근처 아지노야도 좋습니다.' },
-    { t: '14:30', name: '구로몬 시장', cat: 'sight', e: '🦀', ll: [135.5065, 34.6654], wiki: 'Kuromon Ichiba Market', move: '🚶 도보 8분', desc: '구경 위주로. 가게는 보통 9시~17시쯤. 관광객 가격이 비싼 편이니 사기 전에 가격표를 확인하세요.' },
+    { t: '14:30', name: '구로몬 시장', cat: 'sight', e: '🦀', ll: [135.5065, 34.6654], wiki: 'ja:黒門市場', move: '🚶 도보 8분', desc: '구경 위주로. 가게는 보통 9시~17시쯤. 관광객 가격이 비싼 편이니 사기 전에 가격표를 확인하세요.' },
     { t: '15:30', name: '신사이바시스지 쇼핑거리', cat: 'sight', e: '🛍️', ll: [135.5010, 34.6720], wiki: 'Shinsaibashi', move: '🚶 도보 12분', desc: '지붕 있는 아케이드. 드럭스토어, 유니클로, GU, 캐릭터숍.' },
     { t: '17:00', name: '아메리카무라', cat: 'sight', e: '🧢', ll: [135.4982, 34.6722], wiki: 'Amerikamura', move: '🚶 도보 5분', desc: '빈티지 옷, 스티커사진, 디저트. 고등학생 취향 저격.' },
     { t: '18:30', name: '도톤보리 글리코 사인 야경', cat: 'sight', e: '🏃', ll: [135.5013, 34.6687], wiki: 'Dōtonbori', move: '🚶 도보 7분', desc: '에비스바시 다리 위 인증샷 필수. 소매치기와 호객꾼 주의.' },
@@ -236,11 +246,11 @@ const DAYS = [
   { title: '3일차', sub: '오사카성 · 우메다 · 귀국', c: '#e17055', stops: [
     { t: '08:30', name: '체크아웃 · 짐 맡기기', cat: 'move', e: '🧳', ll: [135.5019, 34.6636], wiki: 'Namba Station', desc: '짐은 숙소 프런트 또는 난바역 코인로커.' },
     { t: '09:30', name: '오사카성', cat: 'sight', e: '🏯', ll: [135.5258, 34.6873], wiki: 'Osaka Castle', cost: '천수각 성인 약 1,200엔 · 고등학생 약 600엔', move: '🚇 미도스지선 난바 → 혼마치, 주오선 환승 → 다니마치4초메, 약 20분 · 약 240엔', desc: '11월 중순은 단풍 시작. 고등학생은 학생증(영문 또는 여권) 지참.' },
-    { t: '12:00', name: '점심: 우메다 한큐 삼번가', cat: 'food', e: '🍜', ll: [135.4985, 34.7055], wiki: 'Umeda', cost: '1인 약 1,500엔', move: '🚇 다니마치선 다니마치4초메 → 히가시우메다, 약 10분 · 약 240엔', desc: '푸드홀이라 각자 먹고 싶은 메뉴 고르기 좋아요.' },
+    { t: '12:00', name: '점심: 우메다 한큐 삼번가', cat: 'food', e: '🍜', ll: [135.4985, 34.7055], wiki: 'ja:阪急三番街', cost: '1인 약 1,500엔', move: '🚇 다니마치선 다니마치4초메 → 히가시우메다, 약 10분 · 약 240엔', desc: '푸드홀이라 각자 먹고 싶은 메뉴 고르기 좋아요.' },
     { t: '13:30', name: 'HEP FIVE 관람차 · 쇼핑', cat: 'sight', e: '🎡', ll: [135.5003, 34.7040], wiki: 'HEP Five', cost: '관람차 1,000엔', move: '🚶 도보 5분', desc: '빨간 관람차(11시~22시 45분). 10대 패션 매장이 모여 있습니다.' },
     { t: '14:30', name: '우메다 스카이빌딩 공중정원', cat: 'sight', e: '🌆', ll: [135.4903, 34.7053], wiki: 'Umeda Sky Building', cost: '약 2,000엔', move: '🚶 도보 15분', desc: '시간이 빠듯하면 생략하고 쇼핑을 더 하세요.' },
     { t: '16:15', opt: true, name: '신사이바시 마지막 쇼핑', cat: 'sight', e: '🛍️', ll: [135.5010, 34.6720], wiki: 'Shinsaibashi', move: '🚇 미도스지선 우메다 → 신사이바시, 약 8분 · 약 240엔', desc: '출발이 늦은 날만 들어가는 일정. 못 산 기념품과 드럭스토어 쇼핑.' },
-    { t: '17:45', opt: true, name: '이른 저녁: 이치란 라멘 도톤보리', cat: 'food', e: '🍜', ll: [135.5030, 34.6690], wiki: 'Ichiran', cost: '1인 약 1,200~1,500엔', move: '🚶 도보 7분', desc: '공항 가기 전 든든하게. 칸막이 1인석 돈코츠 라멘.' },
+    { t: '17:45', opt: true, name: '이른 저녁: 이치란 라멘 도톤보리', cat: 'food', e: '🍜', ll: [135.5030, 34.6690], wiki: 'ja:一蘭', cost: '1인 약 1,200~1,500엔', move: '🚶 도보 7분', desc: '공항 가기 전 든든하게. 칸막이 1인석 돈코츠 라멘.' },
     { t: '16:00', fix: 'pickup', name: '난바에서 짐 찾기', cat: 'move', e: '🧳', ll: [135.5019, 34.6636], wiki: 'Namba Station', move: '🚇 미도스지선 우메다 → 난바, 약 10분 · 약 240엔' },
     { t: '17:15', fix: 'air', name: '간사이공항', cat: 'move', e: '✈️', ll: [135.2440, 34.4347], wiki: 'Kansai International Airport', move: '🚆 난카이 공항급행 약 45분 · 약 970엔', desc: '출발 2시간 30분 전 도착. 면세로 산 물건은 짐을 부치기 전에 세관 단말기에서 여권 확인을 받아야 세금을 돌려받습니다. 면세점은 작으니 기념품은 시내에서.' },
   ]},
@@ -252,9 +262,9 @@ const DAY2 = [
   { label: '🐠 수족관·관람차·팀랩', sub: '가이유칸 · 텐포잔 · 팀랩 야간정원', ticket: { name: '가이유칸 · 관람차 · 유람선 · 팀랩', jpy: 7500 }, stops: [
     { t: '09:20', name: '난바 출발', cat: 'move', e: '🚉', ll: [135.5019, 34.6636], wiki: 'Namba Station', desc: '느긋하게 출발해도 되는 날. 아침은 호텔 근처 카페에서.' },
     { t: '10:00', name: '가이유칸 (오사카 수족관)', cat: 'sight', e: '🐋', ll: [135.4290, 34.6545], wiki: 'Osaka Aquarium Kaiyukan', cost: '약 2,700~3,500엔 (날짜별 변동, 고등학생은 성인 요금)', move: '🚇 미도스지선 난바 → 혼마치, 주오선 환승 → 오사카코, 약 30분 · 약 290엔', desc: '고래상어가 있는 세계 최대급 수족관. 보통 10시 개장, 관람 약 2시간. 온라인 사전 예매하면 줄을 안 섭니다.' },
-    { t: '12:00', name: '점심: 텐포잔 나니와 쿠이신보 요코초', cat: 'food', e: '🍛', ll: [135.43043, 34.65628], wiki: 'Tempozan Harbor Village', cost: '1인 약 1,500엔', move: '🚶 도보 2분 (옆 건물)', desc: '옛 오사카 거리를 재현한 푸드 테마 골목. 오므라이스, 타코야키, 카레.' },
+    { t: '12:00', name: '점심: 텐포잔 나니와 쿠이신보 요코초', cat: 'food', e: '🍛', ll: [135.43043, 34.65628], wiki: 'ja:天保山マーケットプレース', cost: '1인 약 1,500엔', move: '🚶 도보 2분 (옆 건물)', desc: '옛 오사카 거리를 재현한 푸드 테마 골목. 오므라이스, 타코야키, 카레.' },
     { t: '13:30', name: '텐포잔 대관람차', cat: 'sight', e: '🎡', ll: [135.4310, 34.6562], wiki: 'Tempozan Ferris Wheel', cost: '약 900~1,000엔', move: '🚶 도보 2분', desc: '높이 112m. 바닥이 투명한 시스루 곤돌라도 있어요(같은 요금, 줄이 더 김).' },
-    { t: '14:30', name: '산타마리아호 유람선', cat: 'sight', e: '⛵', ll: [135.4283, 34.6553], cost: '2,000엔', move: '🚶 도보 3분', desc: '범선 모양 유람선으로 오사카항 45분 한 바퀴. 평일은 11시~16시 매시 정각 출발. 바람이 차니 겉옷 필수.' },
+    { t: '14:30', name: '산타마리아호 유람선', cat: 'sight', e: '⛵', ll: [135.4283, 34.6553], cost: '2,000엔', move: '🚶 도보 3분', wiki: 'ja:サンタマリア号', desc: '범선 모양 유람선으로 오사카항 45분 한 바퀴. 평일은 11시~16시 매시 정각 출발. 바람이 차니 겉옷 필수.' },
     { t: '16:30', name: '저녁: 아베노 하루카스 식당가', cat: 'food', e: '🍱', ll: [135.5143, 34.6459], wiki: 'Abeno Harukas', cost: '1인 약 2,000엔', move: '🚇 주오선 오사카코 → 혼마치, 미도스지선 환승 → 텐노지, 약 35분 · 약 290엔', desc: '일본에서 손꼽히는 높이의 빌딩. 12~14층 식당가. 시간이 남으면 전망대(2,200엔)도.' },
     { t: '18:30', name: '팀랩 보타니컬 가든 오사카', cat: 'sight', e: '✨', ll: [135.52014, 34.61129], wiki: 'Nagai Park', cost: '1,800엔~ (날짜별 변동)', move: '🚇 미도스지선 텐노지 → 나가이, 약 8분 · 약 240엔', desc: '밤에만 여는 빛의 식물원. 11월은 18:00~21:30(입장 20:30까지). 사진이 정말 잘 나옵니다. 야외라 따뜻하게 입고, 비 오는 날은 휴장 여부 확인.' },
     { t: '20:30', name: '난바 복귀', cat: 'move', e: '🚉', ll: [135.5019, 34.6636], wiki: 'Namba Station', move: '🚇 미도스지선 나가이 → 난바, 약 15분 · 약 290엔' },
@@ -266,9 +276,9 @@ const DAY2 = [
     { t: '10:15', name: '도다이지 (대불전)', cat: 'sight', e: '🛕', ll: [135.8399, 34.6890], wiki: 'Tōdai-ji', cost: '약 800엔', move: '🚶 도보 8분', desc: '높이 15m 청동 대불. 기둥 구멍 통과하기가 명물.' },
     { t: '11:30', name: '가스가타이샤', cat: 'sight', e: '⛩️', ll: [135.8484, 34.6814], wiki: 'Kasuga-taisha', move: '🚶 숲길 도보 20분', desc: '석등 3,000개가 늘어선 붉은 신사. 11월 중순은 단풍이 시작됩니다.' },
     { t: '13:00', name: '점심: 히가시무키 상점가 · 나카타니도 떡', cat: 'food', e: '🍡', ll: [135.82886, 34.68193], wiki: 'Mochi', cost: '1인 약 1,500엔', move: '🚶 도보 25분 또는 버스 10분', desc: '고속 떡메치기로 유명한 쑥떡집(1개 약 200엔)과 식당이 모인 아케이드.' },
-    { t: '14:00', name: '나라마치 카페 거리', cat: 'sight', e: '🍵', ll: [135.8300, 34.6780], wiki: 'Naramachi', move: '🚶 도보 7분', desc: '옛 상가 골목을 고친 카페·잡화점. 말차 디저트와 사슴 굿즈.' },
+    { t: '14:00', name: '나라마치 카페 거리', cat: 'sight', e: '🍵', ll: [135.8300, 34.6780], wiki: 'Gangō-ji', move: '🚶 도보 7분', desc: '옛 상가 골목을 고친 카페·잡화점. 말차 디저트와 사슴 굿즈.' },
     { t: '17:00', name: '난바 복귀', cat: 'move', e: '🚉', ll: [135.5019, 34.6636], wiki: 'Namba Station', move: '🚆 긴테쓰 나라선 쾌속급행 약 40분 · 약 680엔' },
-    { t: '18:00', name: '저녁: 이치란 라멘 도톤보리', cat: 'food', e: '🍜', ll: [135.5030, 34.6690], wiki: 'Ichiran', cost: '1인 약 1,200~1,500엔', move: '🚶 도보 8분', desc: '칸막이 1인석 돈코츠 라멘. 한국어 주문서 있음.' },
+    { t: '18:00', name: '저녁: 이치란 라멘 도톤보리', cat: 'food', e: '🍜', ll: [135.5030, 34.6690], wiki: 'ja:一蘭', cost: '1인 약 1,200~1,500엔', move: '🚶 도보 8분', desc: '칸막이 1인석 돈코츠 라멘. 한국어 주문서 있음.' },
   ]},
 ];
 
@@ -354,28 +364,28 @@ const PACK = [
 // 취향별 장소. 고르면 그날 들르는 곳에서 800m 안에 있는 날짜에 자동으로 끼워 넣음(buildPlan 참고)
 const TASTES = {
   char: { label: '🧸 캐릭터·굿즈', spots: [
-    { name: '포켓몬센터 오사카 DX', e: '⚡', ll: [135.50096, 34.67326], desc: '다이마루 신사이바시 본관 9층(10:00~20:00). 같은 층 포켓몬 카페는 예약제 — 방문 31일 전 18시(일본 시간)에 공식 사이트에서 예약이 열립니다. 같은 건물에 점프숍도 있어요.' },
-    { name: '닌텐도 오사카', e: '🍄', ll: [135.49689, 34.70179], desc: '다이마루 우메다 13층. 마리오·젤다·동물의 숲 공식 굿즈. 같은 층에 포켓몬센터, 캡콤 스토어&카페.' },
-    { name: '키디랜드 우메다', e: '🎀', ll: [135.4983, 34.7057], desc: '한큐 삼번가. 산리오, 치이카와, 스누피, 리락쿠마 매장이 모여 있어요.' },
-    { name: '애니메이트 오사카 닛폰바시', e: '📚', ll: [135.5047, 34.66051], wiki: 'Nipponbashi', desc: '덴덴타운 애니 굿즈 거리. 가챠숍, 피규어숍 밀집.' },
+    { name: '포켓몬센터 오사카 DX', e: '⚡', ll: [135.50096, 34.67326], wiki: 'ja:ポケモンセンター', desc: '다이마루 신사이바시 본관 9층(10:00~20:00). 같은 층 포켓몬 카페는 예약제 — 방문 31일 전 18시(일본 시간)에 공식 사이트에서 예약이 열립니다. 같은 건물에 점프숍도 있어요.' },
+    { name: '닌텐도 오사카', e: '🍄', ll: [135.49689, 34.70179], wiki: 'ja:Nintendo OSAKA', desc: '다이마루 우메다 13층. 마리오·젤다·동물의 숲 공식 굿즈. 같은 층에 포켓몬센터, 캡콤 스토어&카페.' },
+    { name: '키디랜드 우메다', e: '🎀', ll: [135.4983, 34.7057], wiki: 'ja:キデイランド', desc: '한큐 삼번가. 산리오, 치이카와, 스누피, 리락쿠마 매장이 모여 있어요.' },
+    { name: '애니메이트 오사카 닛폰바시', e: '📚', ll: [135.5047, 34.66051], wiki: 'ja:アニメイト', desc: '덴덴타운 애니 굿즈 거리. 가챠숍, 피규어숍 밀집.' },
   ]},
   sweet: { label: '🍰 디저트·카페', spots: [
-    { name: '리쿠로 오지상 치즈케이크 난바본점', e: '🧀', ll: [135.5012, 34.6660], cost: '1개 1,065엔', desc: '갓 구운 폭신한 치즈케이크. 종이 울리면 새로 나온 것. 줄은 빨리 줄어듭니다. 포장 9:00~20:00.' },
-    { name: '파블로 치즈타르트 신사이바시', e: '🥧', ll: [135.50128, 34.67186], cost: '미니 320엔~', desc: '걸으면서 먹기 좋은 미니 타르트. 10:00~21:00.' },
-    { name: '그램(gram) 프리미엄 팬케이크', e: '🥞', ll: [135.50139, 34.67268], cost: '약 1,000~1,300엔', desc: '신사이바시스지 상점가 안. 흔들리는 3단 수플레 팬케이크는 하루 3회(11시·15시·18시) 각 30접시 한정, 1시간 전부터 선착순 주문. 현금만 가능.' },
-    { name: '551 호라이 본점 (부타만)', e: '🥟', ll: [135.5013, 34.6667], cost: '2개 460엔', desc: '오사카 사람들이 줄 서는 돼지고기 찐빵. 간식으로 딱.' },
+    { name: '리쿠로 오지상 치즈케이크 난바본점', e: '🧀', ll: [135.5012, 34.6660], cost: '1개 1,065엔', wiki: 'ja:りくろーおじさんの店', desc: '갓 구운 폭신한 치즈케이크. 종이 울리면 새로 나온 것. 줄은 빨리 줄어듭니다. 포장 9:00~20:00.' },
+    { name: '파블로 치즈타르트 신사이바시', e: '🥧', ll: [135.50128, 34.67186], cost: '미니 320엔~', wiki: 'Tart', desc: '걸으면서 먹기 좋은 미니 타르트. 10:00~21:00.' },
+    { name: '그램(gram) 프리미엄 팬케이크', e: '🥞', ll: [135.50139, 34.67268], cost: '약 1,000~1,300엔', wiki: 'Pancake', desc: '신사이바시스지 상점가 안. 흔들리는 3단 수플레 팬케이크는 하루 3회(11시·15시·18시) 각 30접시 한정, 1시간 전부터 선착순 주문. 현금만 가능.' },
+    { name: '551 호라이 본점 (부타만)', e: '🥟', ll: [135.5013, 34.6667], cost: '2개 460엔', wiki: 'ja:551蓬莱', desc: '오사카 사람들이 줄 서는 돼지고기 찐빵. 간식으로 딱.' },
   ]},
   shop: { label: '🛍️ 쇼핑·뷰티', spots: [
     { name: '난바 파크스', e: '🏬', ll: [135.5020, 34.6615], wiki: 'Namba Parks', desc: '옥상 정원이 예쁜 쇼핑몰. 프랑프랑, 3COINS 등 잡화 브랜드.' },
-    { name: '루쿠아 · @cosme 오사카', e: '💄', ll: [135.49477, 34.70271], desc: '오사카역 직결. 일본 화장품 랭킹숍 @cosme는 루쿠아 이레(LUCUA 1100) 3층(10:30~20:30). 테스트하고 구매. 10~20대 패션 브랜드 다수.' },
-    { name: '호리에 오렌지 스트리트', e: '👗', ll: [135.4950, 34.6712], desc: '편집숍과 감성 카페 거리. 아메무라보다 조용합니다.' },
-    { name: '신사이바시 파르코', e: '🧥', ll: [135.5009, 34.6742], desc: '6층에 지브리·캐릭터숍, 지하에 식당가. 다이마루와 연결.' },
+    { name: '루쿠아 · @cosme 오사카', e: '💄', ll: [135.49477, 34.70271], wiki: 'ja:大阪ステーションシティ', desc: '오사카역 직결. 일본 화장품 랭킹숍 @cosme는 루쿠아 이레(LUCUA 1100) 3층(10:30~20:30). 테스트하고 구매. 10~20대 패션 브랜드 다수.' },
+    { name: '호리에 오렌지 스트리트', e: '👗', ll: [135.4950, 34.6712], wiki: 'ja:南堀江', desc: '편집숍과 감성 카페 거리. 아메무라보다 조용합니다.' },
+    { name: '신사이바시 파르코', e: '🧥', ll: [135.5009, 34.6742], wiki: 'ja:パルコ', desc: '6층에 지브리·캐릭터숍, 지하에 식당가. 다이마루와 연결.' },
   ]},
   photo: { label: '📸 사진·놀거리', spots: [
-    { name: '난바 야사카 신사', e: '🦁', ll: [135.4966, 34.6612], wiki: 'Namba Yasaka Shrine', desc: '거대한 사자 머리 무대. 무료, 10분이면 충분한 인증샷 명소.' },
+    { name: '난바 야사카 신사', e: '🦁', ll: [135.4966, 34.6612], wiki: 'ja:難波八阪神社', desc: '거대한 사자 머리 무대. 무료, 10분이면 충분한 인증샷 명소.' },
     { name: '호젠지 요코초', e: '🏮', ll: [135.5024, 34.6679], wiki: 'Hōzen-ji', desc: '이끼 낀 불상과 등불 골목. 저녁에 가면 분위기가 좋아요.' },
-    { name: '라운드원 센니치마에 (프리쿠라)', e: '🤳', ll: [135.5035, 34.6680], cost: '프리쿠라 약 500엔', desc: '일본 스티커사진, 인형뽑기, 볼링. 비 오는 날 대안으로도 좋습니다. 만 18세 미만은 22시 이후 게임 층 입장 불가(만 16세 미만은 보호자와 함께여도 22시까지) — 21시 전에 가세요.' },
-    { name: '도톤보리 리버크루즈', e: '⛵', ll: [135.5027, 34.6689], cost: '성인 2,000엔 · 고등학생 1,000엔 (학생증)', desc: '네온사인 사이를 20분간 배로 도는 코스. 11시~21시 30분 간격, 해 진 뒤가 예쁩니다. 당일 현장 매표.' },
+    { name: '라운드원 센니치마에 (프리쿠라)', e: '🤳', ll: [135.5035, 34.6680], cost: '프리쿠라 약 500엔', wiki: 'ja:ラウンドワン', desc: '일본 스티커사진, 인형뽑기, 볼링. 비 오는 날 대안으로도 좋습니다. 만 18세 미만은 22시 이후 게임 층 입장 불가(만 16세 미만은 보호자와 함께여도 22시까지) — 21시 전에 가세요.' },
+    { name: '도톤보리 리버크루즈', e: '⛵', ll: [135.5027, 34.6689], cost: '성인 2,000엔 · 고등학생 1,000엔 (학생증)', wiki: 'ja:道頓堀', desc: '네온사인 사이를 20분간 배로 도는 코스. 11시~21시 30분 간격, 해 진 뒤가 예쁩니다. 당일 현장 매표.' },
   ]},
 };
 Object.values(TASTES).forEach(t => t.spots.forEach(s => s.cat = 'rec'));
@@ -396,14 +406,14 @@ const EXTRA = [
   { name: '시텐노지', e: '🛕', ll: [135.5168, 34.65472], wiki: 'Shitennō-ji', cost: '성인 500엔 · 고등학생 300엔', desc: '일본에서 가장 오래된 절 중 하나. 조용히 걷기 좋아요. 중심 가람은 16시까지.' },
   { name: '텐노지 동물원', e: '🦒', ll: [135.5085, 34.6510], wiki: 'Tennōji Zoo', cost: '800엔', closed: [1], desc: '시내 한복판 동물원. 월요일 휴원, 입장은 16시까지.' },
   { name: '스미요시타이샤', e: '⛩️', ll: [135.4930, 34.6125], wiki: 'Sumiyoshi-taisha', desc: '빨간 아치 다리가 유명한 신사. 난카이 본선 보통열차로 난바에서 약 10분(급행은 서지 않아요).' },
-  { name: '텐진바시스지 상점가', e: '🏮', ll: [135.5125, 34.6960], wiki: 'Tenjinbashi-suji', desc: '일본에서 가장 긴 상점가(2.6km). 현지인 물가의 먹거리와 잡화.' },
+  { name: '텐진바시스지 상점가', e: '🏮', ll: [135.5125, 34.6960], wiki: 'ja:天神橋筋', desc: '일본에서 가장 긴 상점가(2.6km). 현지인 물가의 먹거리와 잡화.' },
   { name: '오사카 텐만구', e: '⛩️', ll: [135.5126, 34.6958], wiki: 'Osaka Tenmangū', desc: '학문의 신을 모신 신사. 합격·성적 기원 부적과 에마가 유명해 학생들이 많이 찾습니다. 무료, 텐진바시스지 상점가 바로 옆.' },
   { name: '나카노시마 공원 · 중앙공회당', e: '🌹', ll: [135.5070, 34.6935], wiki: 'Nakanoshima', desc: '강 사이 섬의 붉은 벽돌 건물과 산책로. 카페가 많습니다.' },
-  { name: '그랜드 프론트 오사카', e: '🏬', ll: [135.4945, 34.7045], wiki: 'Grand Front Osaka', desc: '오사카역 북쪽 대형 쇼핑몰. 잡화·카페·식당가.' },
+  { name: '그랜드 프론트 오사카', e: '🏬', ll: [135.4945, 34.7045], wiki: 'ja:グランフロント大阪', desc: '오사카역 북쪽 대형 쇼핑몰. 잡화·카페·식당가.' },
   { name: '엑스포시티 · 만박기념공원', e: '🎡', ll: [135.5320, 34.8070], wiki: 'Expo Commemoration Park', desc: '태양의 탑, 라라포트 쇼핑몰, 체험형 수족관 니후레루. 우메다에서 약 40분. (대관람차는 운행 중단 중, 재개일 미정)' },
-  { name: '미노오 폭포 (단풍)', e: '🍁', ll: [135.47197, 34.85389], wiki: 'Minoh Falls', desc: '단풍 명소(절정은 11월 하순, 11월 중순은 물들기 시작). 역에서 폭포까지 걸어서 약 45분. 단풍잎 튀김이 명물.' },
+  { name: '미노오 폭포 (단풍)', e: '🍁', ll: [135.47197, 34.85389], wiki: 'ja:箕面大滝', desc: '단풍 명소(절정은 11월 하순, 11월 중순은 물들기 시작). 역에서 폭포까지 걸어서 약 45분. 단풍잎 튀김이 명물.' },
   { name: '컵누들 뮤지엄 오사카 이케다', e: '🍜', ll: [135.42668, 34.81811], wiki: 'CupNoodles Museum Osaka Ikeda', cost: '입장 무료 · 나만의 컵라면 약 500엔', closed: [2], desc: '컵에 그림을 그리고 재료를 골라 나만의 컵라면 만들기. 예약 없이 당일 선착순. 우메다에서 약 30분. 매주 화요일 휴관, 9:30~16:30(입장 15:30까지).' },
-  { name: '링쿠 프리미엄 아울렛', e: '🛍️', ll: [135.29506, 34.40811], wiki: 'Rinku Town', desc: '간사이공항 한 정거장 전. 귀국일에 짐을 들고 들르기 좋습니다.' },
+  { name: '링쿠 프리미엄 아울렛', e: '🛍️', ll: [135.29506, 34.40811], wiki: 'ja:りんくうプレミアム・アウトレット', desc: '간사이공항 한 정거장 전. 귀국일에 짐을 들고 들르기 좋습니다.' },
   { name: '교토 후시미이나리 신사', e: '⛩️', ll: [135.7727, 34.9671], wiki: 'Fushimi Inari-taisha', desc: '끝없이 이어지는 빨간 도리이. 오사카에서 전철로 약 50분, 반나절 이상 필요.' },
   { name: '교토 기요미즈데라', e: '🏯', ll: [135.78444, 34.9943], wiki: 'Kiyomizu-dera', cost: '약 500엔', desc: '절벽 위 목조 무대와 산넨자카 골목. 후시미이나리와 묶어 교토 하루 코스로.' },
 ].map(x => ({ ...x, cat: 'sight' }));
@@ -418,7 +428,7 @@ const at = (n, t, move, extra) => {
   const x = P(n);
   return { ...x, fix: undefined, opt: undefined, day: undefined, skip: undefined, cat: x.cat === 'rec' ? 'sight' : x.cat, t, move, ...extra };
 };
-const shinume = (t, move) => ({ t, move, name: '저녁: 신우메다 식당가', cat: 'food', e: '🍢', ll: [135.4985, 34.7040], cost: '1인 약 2,000엔', desc: 'JR 오사카역 고가 아래(한큐 우메다역 바로 옆) 식당 골목. 오코노미야키, 쿠시카츠, 타코야키 등 약 100개 가게.' });
+const shinume = (t, move) => ({ t, move, name: '저녁: 신우메다 식당가', cat: 'food', e: '🍢', ll: [135.4985, 34.7040], cost: '1인 약 2,000엔', wiki: 'ja:新梅田食道街', desc: 'JR 오사카역 고가 아래(한큐 우메다역 바로 옆) 식당 골목. 오코노미야키, 쿠시카츠, 타코야키 등 약 100개 가게.' });
 const ichiran = (t, move) => at('이치란', t, move, { name: '저녁: 이치란 라멘 도톤보리', desc: '칸막이 1인석 돈코츠 라멘. 한국어 주문서 있음.' });
 const [ARR, DROP] = DAYS[0].stops, [OUT] = DAYS[2].stops, [LATE, PICK, AIR] = DAYS[2].stops.slice(-3);
 const sunset = '11월 일몰은 16시 55분쯤. 16시 30분까지 올라가면 노을과 야경을 한 번에 봅니다.';
@@ -490,14 +500,14 @@ DAY2.push(
     { t: '10:15', name: '기타노 이진칸 거리', cat: 'sight', e: '🏠', ll: [135.18973, 34.70126], wiki: 'Kitano-chō', cost: '거리 산책 무료 · 저택 입장 약 500~1,000엔', move: '🚆 한신 난바선 쾌속급행 오사카난바 → 고베산노미야, 약 45분 · 약 420엔, 이후 오르막 도보 15분', desc: '언덕 위 서양식 옛 저택 거리. 옛 저택을 고친 스타벅스가 사진 명소.' },
     { t: '12:15', name: '점심: 난킨마치 차이나타운', cat: 'food', e: '🥟', ll: [135.1880, 34.6880], wiki: 'Nankinmachi', cost: '1인 약 1,500엔', move: '🚶 내리막 도보 20분', desc: '길거리 만두, 샤오룽바오, 고베규 꼬치를 조금씩 사 먹는 재미.' },
     { t: '13:45', name: '메리켄 파크 · 고베 포트타워', cat: 'sight', e: '🗼', ll: [135.1868, 34.6826], wiki: 'Kobe Port Tower', cost: '전망대 1,200엔 (시간 지정, 온라인 사전 예매 권장)', move: '🚶 도보 10분', desc: 'BE KOBE 조형물 인증샷과 빨간 포트타워.' },
-    { t: '15:15', name: '고베 하버랜드 · 모자이크', cat: 'sight', e: '🎡', ll: [135.1845, 34.6795], wiki: 'Kobe Harborland', move: '🚶 도보 10분', desc: '바닷가 쇼핑몰과 관람차(약 800엔). 해 질 무렵 항구 야경이 예쁩니다. 호빵맨 뮤지엄은 유아용이라 건너뛰어도 됩니다.' },
+    { t: '15:15', name: '고베 하버랜드 · 모자이크', cat: 'sight', e: '🎡', ll: [135.1845, 34.6795], wiki: 'Harborland', move: '🚶 도보 10분', desc: '바닷가 쇼핑몰과 관람차(약 800엔). 해 질 무렵 항구 야경이 예쁩니다. 호빵맨 뮤지엄은 유아용이라 건너뛰어도 됩니다.' },
     at('난바 복귀', '18:15', '🚆 한신 쾌속급행(나라행) 고베산노미야 → 오사카난바, 약 45분 · 약 420엔', { desc: '' }),
     at('쿠시카츠 다루마', '19:00', '🚶 도보 8분'),
   ]},
   { label: '🏯 오사카 시내 일주 (역사·야경)', sub: '오사카성 · 텐진바시스지 · 야경', ticket: { name: '오사카성 · 공중정원', jpy: 3200 }, stops: [
     at('난바 출발', '09:00', undefined, { desc: '' }),
     at('오사카성', '09:30', P('오사카성').move),
-    { t: '12:00', name: '점심: 텐진바시스지 상점가 먹거리', cat: 'food', e: '🍣', ll: [135.5114, 34.703], wiki: 'Tenjinbashi-suji', cost: '1인 약 1,500엔', move: '🚇 다니마치선 다니마치4초메 → 미나미모리마치, 약 6분 · 약 190엔', desc: '일본에서 가장 긴 상점가. 초밥, 고로케, 타코야키가 현지인 가격.' },
+    { t: '12:00', name: '점심: 텐진바시스지 상점가 먹거리', cat: 'food', e: '🍣', ll: [135.5114, 34.703], wiki: 'ja:天神橋筋', cost: '1인 약 1,500엔', move: '🚇 다니마치선 다니마치4초메 → 미나미모리마치, 약 6분 · 약 190엔', desc: '일본에서 가장 긴 상점가. 초밥, 고로케, 타코야키가 현지인 가격.' },
     at('오사카 텐만구', '13:15', '🚶 도보 5분'),
     at('나카노시마', '14:30', '🚶 도보 15분'),
     at('공중정원', '16:15', '🚇 미도스지선 요도야바시 → 우메다 약 3분 · 약 190엔, 이후 도보 15분', { desc: sunset }),
@@ -528,7 +538,7 @@ DAY2.push(
   { label: '🗿 엑스포시티 (태양의 탑·쇼핑몰)', sub: '엑스포시티 · 만박기념공원', ticket: { name: '만박기념공원 · 니후레루', jpy: 2850 }, stops: [
     at('난바 출발', '09:30', undefined, { desc: '' }),
     at('엑스포시티', '10:30', '🚇 미도스지선(미노오카야노행) 난바 → 센리추오, 오사카 모노레일 환승 → 반파쿠키넨코엔, 약 50분 · 약 680엔', { desc: '오전은 만박기념공원(태양의 탑, 단풍)부터. 공원 입장 450엔(고등학생 이상). 평소 수요일 휴원이지만 10~11월은 쉬지 않습니다.' }),
-    { t: '12:30', name: '점심: 라라포트 엑스포시티', cat: 'food', e: '🍔', ll: [135.53548, 34.80517], cost: '1인 약 1,500엔', move: '🚶 도보 10분', desc: '대형 쇼핑몰 푸드코트와 식당가. 오후는 쇼핑과 체험형 수족관 니후레루(2,400엔). 대관람차는 운행 중단 중(재개 미정).' },
+    { t: '12:30', name: '점심: 라라포트 엑스포시티', cat: 'food', e: '🍔', ll: [135.53548, 34.80517], cost: '1인 약 1,500엔', move: '🚶 도보 10분', wiki: 'ja:ららぽーとEXPOCITY', desc: '대형 쇼핑몰 푸드코트와 식당가. 오후는 쇼핑과 체험형 수족관 니후레루(2,400엔). 대관람차는 운행 중단 중(재개 미정).' },
     at('난바 복귀', '17:30', '🚇 모노레일 반파쿠키넨코엔 → 센리추오, 미도스지선 환승 → 난바, 약 50분 · 약 680엔', { desc: '' }),
     ichiran('18:30', '🚶 도보 8분'),
   ]},
@@ -780,19 +790,35 @@ DAY2.forEach((d, i) => console.assert(buildPlan({ ...DEFAULTS, themes: [i] })[1]
 const total = (items, rate) => items.reduce((s, i) => s + (i.krw || 0) + (i.jpy || 0) * rate, 0);
 console.assert(total([{ krw: 100 }, { jpy: 10 }], 9) === 190, 'budget total broken');
 
-// 위키백과 대표 사진. 실패하면 이모지 그대로.
-const imgCache = {};
-const wikiImg = title => imgCache[title] ??= fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title))
-  .then(r => r.json()).then(j => j.thumbnail?.source).catch(() => null);
+// 위키백과 대표 사진. 모든 장소의 사진 주소를 언어별로 한 번에 받아 imgs에 담음. 실패하면 이모지 그대로
+const imgs = {};
+const imgsReady = (async () => {
+  const keys = [...new Set([...DAYS, ...DAY2, ...FIRSTS, ...LASTS].flatMap(d => d.stops).concat(EXTRA, Object.values(TASTES).flatMap(t => t.spots)).map(x => x.wiki).filter(Boolean))];
+  const byLang = {};
+  for (const k of keys) { const ja = k.startsWith('ja:'); (byLang[ja ? 'ja' : 'en'] ??= {})[ja ? k.slice(3) : k] = k; }
+  await Promise.all(Object.entries(byLang).flatMap(([lang, map]) => {
+    const titles = Object.keys(map), chunks = [];
+    for (let i = 0; i < titles.length; i += 45) chunks.push(titles.slice(i, i + 45));
+    return chunks.map(async chunk => {
+      try {
+        const q = (await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail&pithumbsize=320&pilimit=50&redirects=1&format=json&origin=*&titles=${encodeURIComponent(chunk.join('|'))}`).then(r => r.json())).query;
+        // 위키백과가 제목을 고쳐 쓰거나(normalized) 다른 문서로 넘긴(redirects) 경우 원래 제목으로 되돌려 찾음
+        const back = {};
+        for (const x of [...(q.normalized || []), ...(q.redirects || [])]) back[x.to] = back[x.from] || x.from;
+        for (const pg of Object.values(q.pages)) if (pg.thumbnail) imgs[map[back[pg.title] || pg.title]] = pg.thumbnail.source;
+      } catch {}
+    });
+  }));
+})();
 function setImg(el, p) {
   if (!p.wiki) return;
-  wikiImg(p.wiki).then(src => { if (src) { el.style.backgroundImage = `url("${src}")`; el.firstChild.nodeValue = ''; } });
+  imgsReady.then(() => { const src = imgs[p.wiki]; if (src) { el.style.backgroundImage = `url("${src}")`; el.firstChild.nodeValue = ''; } });
 }
 function thumb(p, cls, lazy) {
   const d = document.createElement('div');
   d.className = cls;
   d.append(p.e);
-  if (!lazy) setImg(d, p);
+  setImg(d, p);
   return d;
 }
 
@@ -871,9 +897,9 @@ function fitLeg(a, b, card) {
 }
 
 let markers = [];
-function addMarker(p, n, small, lazy) {
+function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 색. 없으면 종류별 색
   const el = thumb(p, 'pin' + (small ? ' small' : ''), lazy);
-  el.style.setProperty('--c', CAT[p.cat].c);
+  el.style.setProperty('--c', color || CAT[p.cat].c);
   if (n) { const s = document.createElement('span'); s.textContent = n; el.append(s); }
   const card = document.createElement('div');
   card.className = 'card';
@@ -899,7 +925,6 @@ function addMarker(p, n, small, lazy) {
   }
   const m = ready ? new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(p.ll).addTo(map) : { getElement: () => el, remove() {} };
   m.open = () => {
-    if (lazy) setImg(pic, p);
     const x = Object.assign(document.createElement('button'), { className: 'x', textContent: '✕', onclick: closeInfo });
     $('info').replaceChildren(card, x);
     $('info').hidden = false;
@@ -992,7 +1017,7 @@ function show(sel = cur) { // sel = -1 전체, 0~ 일차
     d.stops.forEach((p, i) => {
       // 공항까지 포함하면 시내가 너무 작아지므로 화면 범위는 시내 장소로만 맞춤
       if (ready && p.ll[1] > 34.6) bounds.extend(p.ll);
-      const m = addMarker(p, i + 1);
+      const m = addMarker(p, i + 1, false, false, d.c);
       const prev = d.stops[i - 1];
       if (p.move && prev) { // 이동 칸을 누르면 그 구간만 지도 가운데에
         const mv = Object.assign(document.createElement('div'), { className: 'move', innerHTML: moveHTML(p.move, prev.ll, p.ll, prev.home, p.home) });
@@ -1031,7 +1056,7 @@ function apply() {
   ['전체', ...PLAN.map(d => d.title)].forEach((t, i) => {
     const b = document.createElement('button');
     b.textContent = t;
-    if (i) b.style.setProperty('--c', PLAN[i - 1].c);
+    if (i) { b.style.setProperty('--c', PLAN[i - 1].c); b.style.borderBottom = `5px solid ${PLAN[i - 1].c}`; }
     b.onclick = () => show(i - 1);
     $('tabs').append(b);
   });
@@ -1107,9 +1132,9 @@ function guideOff() { try { return localStorage.getItem('osaka-guide-off') === '
 $('guide-x').onclick = () => { try { localStorage.setItem('osaka-guide-off', '1'); } catch {} $('guide').hidden = true; };
 document.querySelectorAll('#menu [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
 go('plan');
-$('legend').innerHTML = Object.values(CAT).map(c => `<i style="background:${c.c}"></i>${c.label}`).join('');
+$('legend').insertAdjacentHTML('beforeend', Object.values(CAT).map(c => `<i style="background:${c.c}"></i>${c.label}`).join(''));
 $('legend').insertAdjacentHTML('beforeend', ' <label style="margin-left:8px;white-space:nowrap"><input type="checkbox" id="allpins" checked> 모든 장소 표시</label>');
-$('legend').insertAdjacentHTML('beforeend', '<br><b>━</b> 걸어서 (실제 길) &nbsp; <b>┅</b> 전철 &nbsp; ▶ 가는 방향');
+$('legend').insertAdjacentHTML('beforeend', '<br><b>━</b> 걸어서 (실제 길) &nbsp; <b>┅</b> 전철 &nbsp; ▶ 가는 방향<br>일정 핀과 선의 색 = 날짜 색 (위 탭 밑줄 색과 같음)<br>작은 점 = 일정에 없는 곳 (지도를 확대하면 사진으로 바뀜)');
 $('allpins').onchange = () => show();
 $('home').onclick = () => show();
 
@@ -1245,12 +1270,15 @@ map?.on('load', () => {
   COLORS.forEach((c, i) => {
     const id = 'route' + i, mode = m => ['==', ['get', 'mode'], m];
     map.addSource(id, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-    map.addLayer({ id: id + 'bg', type: 'line', source: id, paint: { 'line-color': '#fff', 'line-width': 9, 'line-opacity': 0.85 }, layout: round });
-    map.addLayer({ id, type: 'line', source: id, filter: mode('walk'), paint: { 'line-color': c, 'line-width': 5 }, layout: round });
-    map.addLayer({ id: id + 'rail', type: 'line', source: id, filter: mode('rail'), paint: { 'line-color': c, 'line-width': 4, 'line-dasharray': [1.5, 1.5] } });
-    map.addLayer({ id: id + 'arrow', type: 'symbol', source: id, layout: { 'symbol-placement': 'line', 'symbol-spacing': 60, 'icon-image': 'route-arrow', 'icon-size': 0.75, 'icon-allow-overlap': true, 'icon-ignore-placement': true } });
+    map.addLayer({ id: id + 'bg', type: 'line', source: id, paint: { 'line-color': '#fff', 'line-width': 12, 'line-opacity': 0.95 }, layout: round });
+    map.addLayer({ id, type: 'line', source: id, filter: mode('walk'), paint: { 'line-color': c, 'line-width': 7 }, layout: round });
+    map.addLayer({ id: id + 'rail', type: 'line', source: id, filter: mode('rail'), paint: { 'line-color': c, 'line-width': 6, 'line-dasharray': [1.6, 1] } });
+    map.addLayer({ id: id + 'arrow', type: 'symbol', source: id, layout: { 'symbol-placement': 'line', 'symbol-spacing': 60, 'icon-image': 'route-arrow', 'icon-size': 0.9, 'icon-allow-overlap': true, 'icon-ignore-placement': true } });
   });
   map.on('click', closeInfo);
+  const setZ = () => { const z = map.getZoom(); $('map').dataset.z = z < 13.3 ? 'far' : z < 14.8 ? 'mid' : 'near'; };
+  map.on('zoom', setZ);
+  setZ();
   ready = true;
   show();
 });
