@@ -60,11 +60,25 @@
   /* 장소 정보 창: 넓은 화면은 지도 왼쪽, 좁은 화면(휴대폰)은 지도 아래쪽 */
   #info { position: absolute; z-index: 3; left: 10px; top: 96px; width: 250px; max-height: calc(100% - 180px); overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 2px 10px #0005; }
   #info[hidden] { display: none; }
+  /* 지금 지도 화면 안에 있는 맛집·장소 사진 목록: 넓은 화면은 지도 왼쪽에 세로로, 좁은 화면은 지도 아래쪽에 가로로 */
+  #nearby { position: absolute; z-index: 2; left: 10px; top: 96px; bottom: 44px; width: 132px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; scrollbar-width: thin; }
+  #nearby:empty { display: none; }
+  #nearby h4 { margin: 0; padding: 3px 8px; font-size: 12px; background: #222; color: #fff; border-radius: 10px; align-self: flex-start; flex: none; }
+  .nb { flex: none; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 5px #0004; cursor: pointer; font-size: 12px; line-height: 1.3; }
+  .nb .thumb { height: 64px; border-radius: 0; }
+  .nb span { display: block; padding: 4px 6px; font-weight: 700; }
+  @media (max-width: 899px) {
+    #nearby { left: 8px; right: 56px; top: auto; bottom: 36px; width: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden; align-items: flex-end; }
+    #nearby h4 { align-self: flex-end; writing-mode: vertical-rl; padding: 6px 3px; }
+    .nb { flex: 0 0 96px; }
+    .nb .thumb { height: 48px; font-size: 20px; }
+    .nb span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
   details#legend { margin: 0; padding: 4px 8px; background: #fffe; box-shadow: 0 1px 4px #0003; max-width: calc(100% - 70px); }
   #legend summary { font-size: 12px; }
   /* 지도를 못 불러온 경우: 지도 자리를 줄이고 안내문 표시, 장소 정보는 그 아래에 그대로 */
   #mapwrap.nomap { flex: 0 0 auto; padding: 58px 10px 10px; }
-  #mapwrap.nomap #map, #mapwrap.nomap #legend, #mapwrap.nomap #home { display: none; }
+  #mapwrap.nomap #map, #mapwrap.nomap #legend, #mapwrap.nomap #home, #mapwrap.nomap #nearby { display: none; }
   #mapwrap.nomap::after { content: '지도를 불러오지 못했습니다(인터넷 연결을 확인하세요). 일정표와 교통 안내는 그대로 볼 수 있어요.'; font-size: 13px; color: #666; }
   #mapwrap.nomap #info { position: static; width: auto; max-height: none; margin-bottom: 8px; }
   #info .x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #fffc; font-size: 16px; cursor: pointer; }
@@ -127,6 +141,7 @@
     <div id="tabs"></div>
     <div id="map"></div>
     <button id="home" title="지도를 처음 보기로 되돌림">⟲ 원위치</button>
+    <div id="nearby"></div>
     <div id="info" hidden></div>
     <details id="legend"><summary>ℹ️ 지도 보는 법 · 표시 설정</summary></details>
   </div>
@@ -880,7 +895,7 @@ function freeArea() {
 function focus(p, zoom) {
   if (!ready) return;
   const { wide, w, h } = freeArea();
-  map.easeTo({ center: p.ll, offset: wide ? [Math.max(0, 300 - w / 2), 0] : [0, -h * 0.2], ...(zoom && { zoom, pitch: 60 }) });
+  map.easeTo({ center: p.ll, offset: wide ? [Math.max(70, 300 - w / 2), 0] : [0, -h * 0.25], ...(zoom && { zoom, pitch: 60 }) });
 }
 function closeInfo() {
   $('info').hidden = true;
@@ -934,6 +949,7 @@ function addMarker(p, n, small, lazy, color) { // color = 일정 핀의 날짜 �
     markers.forEach(o => o.getElement().classList.toggle('sel', o === m));
   };
   el.onclick = () => { m.open(); focus(p); };
+  m.place = p.name;
   markers.push(m);
   return m;
 }
@@ -986,6 +1002,29 @@ async function loadWalks(di) {
     if (path) walkCache[l.key] = path;
   }));
   if (PLAN[di]) map.getSource('route' + di).setData(routeData(PLAN[di].stops));
+}
+
+// 지금 지도 화면 안에 있는 장소를 사진 카드로 나열. 맛집을 먼저, 그다음 화면 가운데에서 가까운 순으로 최대 8곳
+function renderNearby() {
+  if (!ready) return;
+  const b = map.getBounds(), c = map.getCenter().toArray();
+  const list = catalog(S).filter(x => b.contains(x.ll))
+    .sort((x, y) => (y.cat === 'food') - (x.cat === 'food') || meters(c, x.ll) - meters(c, y.ll))
+    .filter((x, i, all) => all.findIndex(y => y.name.replace(/^.*?: /, '') === x.name.replace(/^.*?: /, '')) === i) // '점심: A'와 '저녁: A'는 한 번만
+    .slice(0, 8);
+  const box = $('nearby');
+  box.innerHTML = list.length ? '<h4>📍 이 근처</h4>' : '';
+  list.forEach(p => {
+    const card = Object.assign(document.createElement('div'), { className: 'nb', title: p.name });
+    card.append(thumb(p, 'thumb'), Object.assign(document.createElement('span'), { textContent: (p.cat === 'food' ? '🍴 ' : '') + p.name.replace(/^.*?: /, '') }));
+    card.onclick = () => {
+      let m = markers.find(x => x.place === p.name);
+      if (!m) { m = addMarker(p, '', true); m.getElement().classList.add('keep'); }
+      m.open();
+      focus(p, Math.max(map.getZoom(), 15.5));
+    };
+    box.append(card);
+  });
 }
 
 let PLAN = [], BUDGET = [], NEAR = [], cur = 0;
@@ -1297,6 +1336,7 @@ map?.on('load', () => {
   });
   const setZ = () => { const z = map.getZoom(); $('map').dataset.z = z < 13.3 ? 'far' : z < 14.8 ? 'mid' : 'near'; };
   map.on('zoom', setZ);
+  map.on('moveend', renderNearby);
   setZ();
   ready = true;
   show();
